@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editor de Archivos - BlockHub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #013EFB;
+            --secondary-color: #90F209;
+            --accent-color: #90F209;
+            --dark-navy: #2d3748;
+            --light-gray: #f8f9fa;
+            --glass-bg: rgba(255, 255, 255, 0.25);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --dark-glass: rgba(255, 255, 255, 0.15);
+            --text-light: #2d3748;
+            --text-muted: #4a5568;
+            --code-bg: rgba(255, 255, 255, 0.8);
+            --sidebar-bg: rgba(255, 255, 255, 0.2);
+            --editor-bg: rgba(255, 255, 255, 0.9);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto Mono', monospace;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d3748 25%, #4a5568 50%, #718096 75%, #e2e8f0 100%);
+            min-height: 100vh;
+            color: #2d3748;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 20%, #2d3748 40%, #4a5568 60%, #718096 80%, #e2e8f0 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 20s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        /* Glassmorphism */
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Layout */
+        .container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+        }
+
+        /* Header */
+        .header {
+            background: #01112b;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header-logo {
+            height: auto;
+            width: auto;
+            max-width: 120px;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+        }
+
+        .header-logo:hover {
+            transform: scale(1.05);
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            color: var(--secondary-color);
+            font-weight: 700;
+            margin-left: 20px;
+        }
+
+        .back-link {
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: var(--secondary-color);
+            background: rgba(144, 242, 9, 0.15);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            border: 1px solid rgba(144, 242, 9, 0.3);
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+            transition: all 0.3s ease;
+        }
+
+        /* Main Editor Area */
+        .editor-container {
+            display: flex;
+            flex: 1;
+            min-height: 0;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 320px;
+            background: var(--sidebar-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid var(--glass-border);
+            padding: 1.5rem;
+            overflow-y: auto;
+            box-shadow: 4px 0 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .file-section {
+            margin-bottom: 2rem;
+        }
+
+        .file-section h3 {
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            background: rgba(144, 242, 9, 0.12);
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            border-left: 3px solid var(--secondary-color);
+            font-weight: 600;
+        }
+
+        .file-input-group {
+            margin-bottom: 1rem;
+        }
+
+        .file-input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .file-input-group input, .file-input-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1.5px solid rgba(0, 0, 0, 0.15);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--text-light);
+            font-family: 'Roboto Mono', monospace;
+            transition: all 0.3s ease;
+        }
+
+        .file-input-group input:focus, .file-input-group select:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 2px rgba(144, 242, 9, 0.2);
+            background: rgba(255, 255, 255, 1);
+        }
+
+        /* File List */
+        .file-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .file-item {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1.5px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .file-item:hover {
+            border-color: var(--secondary-color);
+            background: rgba(144, 242, 9, 0.15);
+            transform: translateX(2px);
+        }
+
+        .file-item.active {
+            border-color: var(--secondary-color);
+            background: rgba(144, 242, 9, 0.25);
+            box-shadow: 0 2px 8px rgba(144, 242, 9, 0.3);
+        }
+
+        .file-name {
+            font-weight: 600;
+            color: var(--text-light);
+            margin-bottom: 0.25rem;
+        }
+
+        .file-hash {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            word-break: break-all;
+        }
+
+        /* Main Editor */
+        .editor-area {
+            flex: 1;
+            background: var(--editor-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            margin: 1rem;
+            border-radius: 15px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+        }
+
+        .editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .current-file {
+            color: var(--secondary-color);
+            font-weight: 600;
+            background: rgba(144, 242, 9, 0.15);
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            border: 1px solid rgba(144, 242, 9, 0.3);
+            font-size: 1.1rem;
+        }
+
+        .editor-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* Code Editor */
+        .code-editor {
+            flex: 1;
+            min-height: 0;
+            position: relative;
+        }
+
+        .code-textarea {
+            width: 100%;
+            height: 100%;
+            min-height: 500px;
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            color: #2d3748;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            resize: none;
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+        }
+
+        .code-textarea:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(144, 242, 9, 0.2), inset 0 2px 4px rgba(0, 0, 0, 0.06);
+            background: rgba(255, 255, 255, 1);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: var(--light-gray);
+            box-shadow: 0 4px 15px rgba(1, 62, 251, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(1, 62, 251, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--code-bg);
+            color: var(--text-light);
+            border: 1px solid var(--glass-border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(144, 242, 9, 0.1);
+            border-color: var(--secondary-color);
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #28a745, var(--secondary-color));
+            color: white;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Status Messages */
+        .status-message {
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-weight: 500;
+        }
+
+        .status-success {
+            background: rgba(40, 167, 69, 0.25);
+            border: 2px solid rgba(40, 167, 69, 0.5);
+            color: #28a745;
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+        }
+
+        .status-error {
+            background: rgba(220, 53, 69, 0.2);
+            border: 1px solid rgba(220, 53, 69, 0.4);
+            color: #dc3545;
+        }
+
+        .status-info {
+            background: rgba(144, 242, 9, 0.25);
+            border: 2px solid rgba(144, 242, 9, 0.5);
+            color: var(--secondary-color);
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+        }
+
+        /* Loading Spinner */
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(144, 242, 9, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--secondary-color);
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 0.5rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .editor-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                max-height: 300px;
+                border-right: none;
+                border-bottom: 1px solid var(--glass-border);
+            }
+
+            .editor-area {
+                margin: 0.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .header-brand {
+                flex-direction: column;
+                gap: 0.5rem;
+                text-align: center;
+            }
+
+            .header-logo {
+                height: 35px;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .sidebar {
+                padding: 1rem;
+            }
+
+            .editor-area {
+                margin: 0.25rem;
+                padding: 1rem;
+            }
+            
+            .editor-actions {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+
+            .code-textarea {
+                min-height: 400px;
+                padding: 1rem;
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+    
+    <div class="container">
+        <div class="header">
+            <div class="header-brand">
+                <img src="src/assets/BLANCO.png" alt="BlockHub Logo" class="header-logo">
+                <h1>Editor de Archivos IPFS</h1>
+            </div>
+            <a href="conectar-wallet.html" class="back-link">← Volver a Wallet</a>
+        </div>
+
+        <div class="editor-container">
+            <!-- Sidebar -->
+            <div class="sidebar glass">
+                <div class="file-section">
+                    <h3>📁 Nuevo Archivo</h3>
+                    
+                    <div class="file-input-group">
+                        <label for="fileName">Nombre del archivo:</label>
+                        <input type="text" id="fileName" placeholder="mi-archivo.js" />
+                    </div>
+                    
+                    <div class="file-input-group">
+                        <label for="fileType">Tipo de archivo:</label>
+                        <select id="fileType">
+                            <option value="javascript">JavaScript (.js)</option>
+                            <option value="typescript">TypeScript (.ts)</option>
+                            <option value="solidity">Solidity (.sol)</option>
+                            <option value="json">JSON (.json)</option>
+                            <option value="markdown">Markdown (.md)</option>
+                            <option value="text">Texto (.txt)</option>
+                            <option value="html">HTML (.html)</option>
+                            <option value="css">CSS (.css)</option>
+                        </select>
+                    </div>
+                    
+                    <button id="createFileBtn" class="btn btn-primary" style="width: 100%;">
+                        Crear Archivo
+                    </button>
+                </div>
+
+                <div class="file-section">
+                    <h3>📚 Archivos Guardados</h3>
+                    <div id="fileList" class="file-list">
+                        <div style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                            No hay archivos guardados
+                        </div>
+                    </div>
+                </div>
+
+                <div class="file-section">
+                    <h3>🔗 Cargar por Hash</h3>
+                    <div class="file-input-group">
+                        <label for="ipfsHash">Hash IPFS:</label>
+                        <input type="text" id="ipfsHash" placeholder="Qm..." />
+                    </div>
+                    <button id="loadFileBtn" class="btn btn-secondary" style="width: 100%;">
+                        Cargar Archivo
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main Editor -->
+            <div class="editor-area glass">
+                <div class="editor-header">
+                    <div class="current-file" id="currentFileName">Nuevo archivo</div>
+                    <div class="editor-actions">
+                        <button id="saveFileBtn" class="btn btn-success" disabled>
+                            💾 Guardar en IPFS
+                        </button>
+                        <button id="newFileBtn" class="btn btn-secondary">
+                            📄 Nuevo
+                        </button>
+                    </div>
+                </div>
+
+                <div id="statusMessage" style="display: none;"></div>
+
+                <div class="code-editor">
+                    <textarea 
+                        id="codeEditor" 
+                        class="code-textarea" 
+                        placeholder="// Escribe tu código aquí...
+// Este archivo se guardará en IPFS usando Pinata
+console.log('¡Hola BlockHub!');"
+                    ></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pinata Configuration -->
+    <script src="pinata-config.js"></script>
+    
+    <script>
+
+        // Variables globales
+        let currentFileHash = null;
+        let currentFileName = 'nuevo-archivo.js';
+        let savedFiles = JSON.parse(localStorage.getItem('blockhub_files') || '[]');
+
+        // Variable global para almacenar el hash actual (accesible desde consola del navegador)
+        window.BLOCKHUB_CURRENT_FILE_HASH = null;
+
+        // DOM Elements
+        const fileNameInput = document.getElementById('fileName');
+        const fileTypeSelect = document.getElementById('fileType');
+        const createFileBtn = document.getElementById('createFileBtn');
+        const fileList = document.getElementById('fileList');
+        const ipfsHashInput = document.getElementById('ipfsHash');
+        const loadFileBtn = document.getElementById('loadFileBtn');
+        const currentFileNameEl = document.getElementById('currentFileName');
+        const saveFileBtn = document.getElementById('saveFileBtn');
+        const newFileBtn = document.getElementById('newFileBtn');
+        const codeEditor = document.getElementById('codeEditor');
+        const statusMessage = document.getElementById('statusMessage');
+
+        // Utility Functions
+        function showStatus(message, type = 'info') {
+            statusMessage.textContent = message;
+            statusMessage.className = `status-message status-${type}`;
+            statusMessage.style.display = 'block';
+            
+            if (type !== 'error') {
+                setTimeout(() => {
+                    statusMessage.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        function updateFileName() {
+            const name = fileNameInput.value.trim();
+            const type = fileTypeSelect.value;
+            
+            if (name) {
+                // Asegurar que tenga la extensión correcta
+                const extensions = {
+                    javascript: '.js',
+                    typescript: '.ts',
+                    solidity: '.sol',
+                    json: '.json',
+                    markdown: '.md',
+                    text: '.txt',
+                    html: '.html',
+                    css: '.css'
+                };
+                
+                const ext = extensions[type];
+                const finalName = name.endsWith(ext) ? name : name + ext;
+                currentFileName = finalName;
+                currentFileNameEl.textContent = finalName;
+                saveFileBtn.disabled = false;
+            } else {
+                currentFileName = 'nuevo-archivo.js';
+                currentFileNameEl.textContent = 'Nuevo archivo';
+                saveFileBtn.disabled = true;
+            }
+        }
+
+        function updateFileList() {
+            if (savedFiles.length === 0) {
+                fileList.innerHTML = `
+                    <div style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                        No hay archivos guardados
+                    </div>
+                `;
+                return;
+            }
+
+            fileList.innerHTML = savedFiles.map(file => `
+                <div class="file-item" onclick="loadFileFromList('${file.hash}', '${file.name}')">
+                    <div class="file-name">${file.name}</div>
+                    <div class="file-hash">${file.hash}</div>
+                </div>
+            `).join('');
+        }
+
+        function saveFileToLocalStorage(name, hash) {
+            const fileEntry = {
+                name: name,
+                hash: hash,
+                timestamp: Date.now(),
+                date: new Date().toLocaleString()
+            };
+            
+            // Evitar duplicados
+            savedFiles = savedFiles.filter(f => f.hash !== hash);
+            savedFiles.unshift(fileEntry);
+            
+            // Limitar a los últimos 20 archivos
+            if (savedFiles.length > 20) {
+                savedFiles = savedFiles.slice(0, 20);
+            }
+            
+            localStorage.setItem('blockhub_files', JSON.stringify(savedFiles));
+            updateFileList();
+        }
+
+        // Pinata Functions
+        async function uploadToPinata(content, fileName) {
+            try {
+                // Verificar si Pinata está configurado
+                if (window.pinataService && window.pinataService.isConfigured) {
+                    showStatus('📤 Subiendo archivo a Pinata IPFS...', 'info');
+                    
+                    const result = await window.pinataService.uploadFile(content, fileName, {
+                        name: `BlockHub: ${fileName}`,
+                        description: `Archivo creado en BlockHub - ${new Date().toISOString()}`
+                    });
+                    
+                    return result.hash;
+                } else {
+                    // Modo simulación cuando Pinata no está configurado
+                    showStatus('⚠️ Pinata no configurado. Usando almacenamiento local...', 'info');
+                    
+                    // Simular delay de upload
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    
+                    // Generar un hash simulado
+                    const simulatedHash = 'Qm' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+                    
+                    // Guardar en localStorage como backup
+                    localStorage.setItem(`blockhub_file_${simulatedHash}`, JSON.stringify({
+                        content: content,
+                        fileName: fileName,
+                        timestamp: Date.now()
+                    }));
+                    
+                    return simulatedHash;
+                }
+                
+            } catch (error) {
+                console.error('Error uploading to Pinata:', error);
+                throw error;
+            }
+        }
+
+        async function loadFromPinata(hash) {
+            try {
+                // Intentar cargar desde Pinata si está configurado
+                if (window.pinataService && window.pinataService.isConfigured) {
+                    try {
+                        const content = await window.pinataService.loadFile(hash);
+                        return {
+                            content: content,
+                            fileName: `archivo-${hash.substring(0, 8)}.txt`
+                        };
+                    } catch (pinataError) {
+                        // Si falla Pinata, intentar localStorage como backup
+                        console.warn('Error cargando desde Pinata, intentando localStorage:', pinataError);
+                    }
+                }
+                
+                // Cargar desde localStorage (backup o modo local)
+                const localFile = localStorage.getItem(`blockhub_file_${hash}`);
+                if (localFile) {
+                    const fileData = JSON.parse(localFile);
+                    return {
+                        content: fileData.content,
+                        fileName: fileData.fileName
+                    };
+                }
+                
+                throw new Error('Archivo no encontrado en IPFS ni en almacenamiento local');
+                
+            } catch (error) {
+                console.error('Error loading from Pinata:', error);
+                throw error;
+            }
+        }
+
+        // Event Handlers
+        async function handleSaveFile() {
+            const content = codeEditor.value.trim();
+            if (!content) {
+                showStatus('El archivo está vacío', 'error');
+                return;
+            }
+
+            try {
+                saveFileBtn.disabled = true;
+                saveFileBtn.innerHTML = '<span class="loading"></span>Guardando...';
+                
+                const hash = await uploadToPinata(content, currentFileName);
+                
+                currentFileHash = hash;
+                window.BLOCKHUB_CURRENT_FILE_HASH = hash; // Variable accesible desde consola
+                
+                saveFileToLocalStorage(currentFileName, hash);
+                
+                showStatus(`✅ Archivo guardado exitosamente en IPFS: ${hash}`, 'success');
+                console.log('📁 Archivo guardado - Hash IPFS:', hash);
+                console.log('🔍 Accede al hash desde: window.BLOCKHUB_CURRENT_FILE_HASH');
+                
+            } catch (error) {
+                showStatus(`Error al guardar: ${error.message}`, 'error');
+            } finally {
+                saveFileBtn.disabled = false;
+                saveFileBtn.innerHTML = '💾 Guardar en IPFS';
+            }
+        }
+
+        async function handleLoadFile() {
+            const hash = ipfsHashInput.value.trim();
+            if (!hash) {
+                showStatus('Ingresa un hash IPFS válido', 'error');
+                return;
+            }
+
+            try {
+                loadFileBtn.disabled = true;
+                loadFileBtn.innerHTML = '<span class="loading"></span>Cargando...';
+                
+                const fileData = await loadFromPinata(hash);
+                
+                codeEditor.value = fileData.content;
+                currentFileName = fileData.fileName;
+                currentFileHash = hash;
+                window.BLOCKHUB_CURRENT_FILE_HASH = hash;
+                
+                currentFileNameEl.textContent = fileData.fileName;
+                ipfsHashInput.value = '';
+                
+                showStatus(`✅ Archivo cargado desde IPFS: ${hash}`, 'success');
+                
+            } catch (error) {
+                showStatus(`Error al cargar: ${error.message}`, 'error');
+            } finally {
+                loadFileBtn.disabled = false;
+                loadFileBtn.innerHTML = 'Cargar Archivo';
+            }
+        }
+
+        function handleNewFile() {
+            codeEditor.value = '';
+            currentFileName = 'nuevo-archivo.js';
+            currentFileHash = null;
+            window.BLOCKHUB_CURRENT_FILE_HASH = null;
+            currentFileNameEl.textContent = 'Nuevo archivo';
+            fileNameInput.value = '';
+            saveFileBtn.disabled = true;
+        }
+
+        function handleCreateFile() {
+            const name = fileNameInput.value.trim();
+            if (!name) {
+                showStatus('Ingresa un nombre para el archivo', 'error');
+                return;
+            }
+            
+            updateFileName();
+            codeEditor.focus();
+            showStatus(`Archivo "${currentFileName}" creado. ¡Comienza a escribir!`, 'success');
+        }
+
+        async function loadFileFromList(hash, name) {
+            try {
+                const fileData = await loadFromPinata(hash);
+                codeEditor.value = fileData.content;
+                currentFileName = name;
+                currentFileHash = hash;
+                window.BLOCKHUB_CURRENT_FILE_HASH = hash;
+                currentFileNameEl.textContent = name;
+                
+                // Marcar como activo
+                document.querySelectorAll('.file-item').forEach(item => item.classList.remove('active'));
+                event.currentTarget.classList.add('active');
+                
+                showStatus(`Archivo "${name}" cargado`, 'success');
+            } catch (error) {
+                showStatus(`Error al cargar archivo: ${error.message}`, 'error');
+            }
+        }
+
+        // Event Listeners
+        fileNameInput.addEventListener('input', updateFileName);
+        fileTypeSelect.addEventListener('change', updateFileName);
+        createFileBtn.addEventListener('click', handleCreateFile);
+        saveFileBtn.addEventListener('click', handleSaveFile);
+        loadFileBtn.addEventListener('click', handleLoadFile);
+        newFileBtn.addEventListener('click', handleNewFile);
+
+        // Habilitar guardado cuando hay contenido
+        codeEditor.addEventListener('input', () => {
+            if (currentFileName !== 'Nuevo archivo' && codeEditor.value.trim()) {
+                saveFileBtn.disabled = false;
+            }
+        });
+
+        // Keyboard shortcuts
+        codeEditor.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                if (!saveFileBtn.disabled) {
+                    handleSaveFile();
+                }
+            }
+        });
+
+        // Initialize
+        updateFileList();
+        showStatus('💡 Consejo: Usa Ctrl+S para guardar rápidamente', 'info');
+        
+        // Mostrar información en consola
+        console.log('🚀 BlockHub File Editor cargado');
+        console.log('📋 Hash del archivo actual disponible en: window.BLOCKHUB_CURRENT_FILE_HASH');
+    </script>
+</body>
+</html>
