@@ -12,17 +12,19 @@
         :root {
             --primary-color: #013EFB;
             --secondary-color: #90F209;
-            --accent-color: #90F209;
-            --dark-navy: #2d3748;
-            --light-gray: #f8f9fa;
-            --glass-bg: rgba(255, 255, 255, 0.25);
-            --glass-border: rgba(255, 255, 255, 0.4);
-            --dark-glass: rgba(255, 255, 255, 0.15);
-            --text-light: #2d3748;
-            --text-muted: #4a5568;
-            --code-bg: rgba(255, 255, 255, 0.8);
-            --sidebar-bg: rgba(255, 255, 255, 0.2);
-            --editor-bg: rgba(255, 255, 255, 0.9);
+            --dark-navy: #01112B;
+            --deep-black: #000000;
+            --almost-black: #0a0a0a;
+            --dark-charcoal: #1a1a1a;
+            --light-gray: #EBEBEB;
+            --glass-bg: rgba(235, 235, 235, 0.1);
+            --glass-border: rgba(235, 235, 235, 0.2);
+            --dark-glass: rgba(1, 17, 43, 0.3);
+            --text-light: rgba(235, 235, 235, 0.95);
+            --text-muted: rgba(235, 235, 235, 0.75);
+            --code-bg: rgba(255, 255, 255, 0.1);
+            --sidebar-bg: rgba(1, 17, 43, 0.3);
+            --editor-bg: rgba(1, 17, 43, 0.2);
         }
 
         * {
@@ -33,9 +35,10 @@
 
         body {
             font-family: 'Roboto Mono', monospace;
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d3748 25%, #4a5568 50%, #718096 75%, #e2e8f0 100%);
+            background: linear-gradient(135deg, var(--deep-black) 0%, var(--almost-black) 25%, var(--dark-charcoal) 40%, var(--dark-navy) 70%, var(--primary-color) 100%);
             min-height: 100vh;
-            color: #2d3748;
+            overflow-x: hidden;
+            color: var(--text-light);
         }
 
         /* Animated Background */
@@ -46,9 +49,9 @@
             width: 100%;
             height: 100%;
             z-index: -1;
-            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 20%, #2d3748 40%, #4a5568 60%, #718096 80%, #e2e8f0 100%);
+            background: linear-gradient(135deg, var(--deep-black) 0%, var(--almost-black) 20%, var(--dark-charcoal) 35%, var(--dark-navy) 55%, var(--primary-color) 75%, var(--secondary-color) 100%);
             background-size: 400% 400%;
-            animation: gradientShift 20s ease infinite;
+            animation: gradientShift 15s ease infinite;
         }
 
         @keyframes gradientShift {
@@ -56,13 +59,77 @@
             50% { background-position: 100% 50%; }
         }
 
-        /* Glassmorphism */
+        /* Floating cubes animation */
+        .bg-cube {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            opacity: 0.4;
+            animation: bgCubeFloat 8s ease-in-out infinite;
+        }
+
+        .bg-cube:nth-child(1) {
+            top: 10%;
+            left: 15%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            animation-delay: 0s;
+            box-shadow: 0 8px 25px rgba(1, 62, 251, 0.3);
+        }
+
+        .bg-cube:nth-child(2) {
+            top: 60%;
+            right: 20%;
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            animation-delay: 2s;
+            box-shadow: 0 8px 25px rgba(144, 242, 9, 0.3);
+            width: 80px;
+            height: 80px;
+        }
+
+        .bg-cube:nth-child(3) {
+            bottom: 20%;
+            left: 25%;
+            background: linear-gradient(135deg, var(--dark-navy), var(--primary-color));
+            animation-delay: 4s;
+            box-shadow: 0 8px 25px rgba(1, 17, 43, 0.3);
+            width: 50px;
+            height: 50px;
+        }
+
+        @keyframes bgCubeFloat {
+            0%, 100% { 
+                transform: translateY(0px) rotate(0deg) scale(1);
+                opacity: 0.4;
+            }
+            25% { 
+                transform: translateY(-15px) rotate(45deg) scale(1.1);
+                opacity: 0.6;
+            }
+            50% { 
+                transform: translateY(-30px) rotate(90deg) scale(0.9);
+                opacity: 0.3;
+            }
+            75% { 
+                transform: translateY(-15px) rotate(135deg) scale(1.05);
+                opacity: 0.5;
+            }
+        }
+
+        /* Glassmorphism Components */
         .glass {
             background: var(--glass-bg);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .glass-dark {
+            background: var(--dark-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         /* Layout */
@@ -73,63 +140,77 @@
             padding: 0;
         }
 
-        /* Header */
-        .header {
-            background: #01112b;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--glass-border);
-            padding: 1.5rem 2rem;
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            width: 90%;
+            max-width: 1200px;
+            border-radius: 20px;
+            padding: 12px 24px;
+            transition: all 0.3s ease;
+            animation: slideDown 1s ease;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateX(-50%) translateY(-100px); opacity: 0; }
+            to { transform: translateX(-50%) translateY(0); opacity: 1; }
+        }
+
+        .nav-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
         }
 
-        .header-brand {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .header-logo {
+        .nav-logo .logo-image {
             height: auto;
             width: auto;
-            max-width: 120px;
+            max-width: 150px;
             object-fit: contain;
-            transition: transform 0.3s ease;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+            transition: transform 0.3s ease, filter 0.3s ease;
         }
 
-        .header-logo:hover {
+        .nav-logo .logo-image:hover {
             transform: scale(1.05);
+            filter: brightness(1.1);
         }
 
-        .header h1 {
-            font-size: 2rem;
-            color: var(--secondary-color);
-            font-weight: 700;
-            margin-left: 20px;
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
         }
 
-        .back-link {
+        .nav-menu a {
             color: var(--text-light);
             text-decoration: none;
-            font-weight: 600;
-            transition: color 0.3s ease;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
         }
 
-        .back-link:hover {
-            color: var(--secondary-color);
-            background: rgba(144, 242, 9, 0.15);
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            border: 1px solid rgba(144, 242, 9, 0.3);
-            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
-            transition: all 0.3s ease;
+        .nav-menu a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            transition: width 0.3s ease;
+        }
+
+        .nav-menu a:hover::after {
+            width: 100%;
+        }
+
+        .nav-menu a:hover {
+            color: white;
+            transform: translateY(-2px);
         }
 
         /* Main Editor Area */
@@ -137,6 +218,7 @@
             display: flex;
             flex: 1;
             min-height: 0;
+            padding-top: 100px; /* Space for fixed navbar */
         }
 
         /* Sidebar */
@@ -146,9 +228,11 @@
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border-right: 1px solid var(--glass-border);
-            padding: 1.5rem;
+            padding: 2rem;
             overflow-y: auto;
             box-shadow: 4px 0 6px rgba(0, 0, 0, 0.05);
+            margin: 1rem 0 1rem 1rem;
+            border-radius: 20px;
         }
 
         .file-section {
@@ -159,11 +243,13 @@
             color: var(--secondary-color);
             margin-bottom: 1rem;
             font-size: 1.1rem;
-            background: rgba(144, 242, 9, 0.12);
-            padding: 0.5rem 0.75rem;
-            border-radius: 6px;
-            border-left: 3px solid var(--secondary-color);
+            background: rgba(144, 242, 9, 0.15);
+            padding: 0.75rem 1rem;
+            border-radius: 15px;
+            border-left: 4px solid var(--secondary-color);
             font-weight: 600;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
 
         .file-input-group {
@@ -180,19 +266,25 @@
         .file-input-group input, .file-input-group select {
             width: 100%;
             padding: 0.75rem;
-            border: 1.5px solid rgba(0, 0, 0, 0.15);
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.9);
+            border: 1.5px solid var(--glass-border);
+            border-radius: 15px;
+            background: var(--glass-bg);
             color: var(--text-light);
             font-family: 'Roboto Mono', monospace;
             transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
 
         .file-input-group input:focus, .file-input-group select:focus {
             outline: none;
             border-color: var(--secondary-color);
-            box-shadow: 0 0 0 2px rgba(144, 242, 9, 0.2);
-            background: rgba(255, 255, 255, 1);
+            box-shadow: 0 0 0 3px rgba(144, 242, 9, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .file-input-group input::placeholder {
+            color: var(--text-muted);
         }
 
         /* File List */
@@ -235,36 +327,131 @@
             word-break: break-all;
         }
 
+        /* Commit History Styles */
+        .commit-history-list {
+            max-height: 350px;
+            overflow-y: auto;
+        }
+
+        .commit-item {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1.5px solid rgba(0, 0, 0, 0.1);
+            border-left: 4px solid transparent;
+        }
+
+        .commit-item:hover {
+            border-color: var(--secondary-color);
+            background: rgba(144, 242, 9, 0.15);
+            transform: translateX(2px);
+        }
+
+        .commit-item.active {
+            border-color: var(--secondary-color);
+            background: rgba(144, 242, 9, 0.25);
+            box-shadow: 0 2px 8px rgba(144, 242, 9, 0.3);
+            transform: translateX(4px);
+        }
+
+        .commit-item.pending {
+            border-left-color: #ffc107;
+        }
+
+        .commit-item.approved {
+            border-left-color: #28a745;
+        }
+
+        .commit-item.rejected {
+            border-left-color: #dc3545;
+        }
+
+        .commit-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.3rem;
+        }
+
+        .commit-message {
+            font-weight: 600;
+            color: var(--text-light);
+            margin-bottom: 0.2rem;
+            font-size: 0.9rem;
+        }
+
+        .commit-meta {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .commit-status {
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .commit-status.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .commit-status.approved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .commit-status.rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .repo-name {
+            font-weight: bold;
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+        }
+
         /* Main Editor */
         .editor-area {
             flex: 1;
             background: var(--editor-bg);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            padding: 1.5rem;
+            padding: 2rem;
             display: flex;
             flex-direction: column;
             margin: 1rem;
-            border-radius: 15px;
+            border-radius: 20px;
             border: 1px solid var(--glass-border);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
 
         .editor-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1rem;
+            margin-bottom: 2rem;
         }
 
         .current-file {
             color: var(--secondary-color);
             font-weight: 600;
-            background: rgba(144, 242, 9, 0.15);
-            padding: 0.4rem 0.8rem;
-            border-radius: 6px;
+            background: rgba(144, 242, 9, 0.2);
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
             border: 1px solid rgba(144, 242, 9, 0.3);
             font-size: 1.1rem;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
 
         .editor-actions {
@@ -283,63 +470,94 @@
             width: 100%;
             height: 100%;
             min-height: 500px;
-            background: rgba(255, 255, 255, 0.95);
-            border: 2px solid rgba(0, 0, 0, 0.1);
-            border-radius: 12px;
-            padding: 1.5rem;
-            color: #2d3748;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+            color: var(--text-light);
             font-family: 'Roboto Mono', monospace;
             font-size: 14px;
             line-height: 1.6;
             resize: none;
             outline: none;
             transition: all 0.3s ease;
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
 
         .code-textarea:focus {
             border-color: var(--secondary-color);
-            box-shadow: 0 0 0 3px rgba(144, 242, 9, 0.2), inset 0 2px 4px rgba(0, 0, 0, 0.06);
-            background: rgba(255, 255, 255, 1);
+            box-shadow: 0 0 0 3px rgba(144, 242, 9, 0.2);
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        .code-textarea::placeholder {
+            color: var(--text-muted);
         }
 
         /* Buttons */
         .btn {
-            padding: 12px 24px;
-            border-radius: 8px;
+            padding: 16px 32px;
+            border-radius: 50px;
             border: none;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
             font-family: 'Roboto Mono', monospace;
-            font-size: 14px;
+            font-size: 1rem;
+            text-decoration: none;
+            display: inline-block;
         }
 
         .btn-primary {
             background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
             color: var(--light-gray);
-            box-shadow: 0 4px 15px rgba(1, 62, 251, 0.3);
+            box-shadow: 0 10px 30px rgba(1, 62, 251, 0.4);
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(1, 62, 251, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(1, 62, 251, 0.5), 0 0 30px rgba(144, 242, 9, 0.3);
         }
 
         .btn-secondary {
-            background: var(--code-bg);
+            background: rgba(255, 255, 255, 0.1);
             color: var(--text-light);
-            border: 1px solid var(--glass-border);
+            border: 2px solid rgba(255, 255, 255, 0.2);
         }
 
         .btn-secondary:hover {
             background: rgba(144, 242, 9, 0.1);
             border-color: var(--secondary-color);
+            transform: translateY(-2px);
         }
 
         .btn-success {
             background: linear-gradient(45deg, #28a745, var(--secondary-color));
             color: white;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            border-radius: 25px;
         }
 
         .btn:disabled {
@@ -351,31 +569,36 @@
         /* Status Messages */
         .status-message {
             padding: 1rem;
-            border-radius: 8px;
+            border-radius: 15px;
             margin: 1rem 0;
             font-weight: 500;
+            border: 2px solid;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
 
         .status-success {
-            background: rgba(40, 167, 69, 0.25);
-            border: 2px solid rgba(40, 167, 69, 0.5);
+            background: rgba(40, 167, 69, 0.2);
+            border-color: rgba(40, 167, 69, 0.5);
             color: #28a745;
-            font-weight: 600;
-            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
         }
 
         .status-error {
             background: rgba(220, 53, 69, 0.2);
-            border: 1px solid rgba(220, 53, 69, 0.4);
+            border-color: rgba(220, 53, 69, 0.5);
             color: #dc3545;
         }
 
         .status-info {
-            background: rgba(144, 242, 9, 0.25);
-            border: 2px solid rgba(144, 242, 9, 0.5);
+            background: rgba(144, 242, 9, 0.2);
+            border-color: rgba(144, 242, 9, 0.5);
             color: var(--secondary-color);
-            font-weight: 600;
-            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+        }
+
+        .status-warning {
+            background: rgba(255, 193, 7, 0.2);
+            border-color: rgba(255, 193, 7, 0.5);
+            color: #ffc107;
         }
 
         /* Loading Spinner */
@@ -460,20 +683,32 @@
     </style>
 </head>
 <body>
-    <div class="bg-animation"></div>
+    <div class="bg-animation">
+        <div class="bg-cube"></div>
+        <div class="bg-cube"></div>
+        <div class="bg-cube"></div>
+    </div>
+    
+    <!-- Navigation -->
+    <nav class="navbar glass">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <img src="src/assets/BLANCO.png" alt="BlockHub Logo" class="logo-image">
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="conectar-wallet.html">Wallet</a></li>
+                <li><a href="editor-archivos.html" style="color: var(--secondary-color);">Editor</a></li>
+                <li><a href="colaboradores.html">Colaboradores</a></li>
+            </ul>
+        </div>
+    </nav>
     
     <div class="container">
-        <div class="header">
-            <div class="header-brand">
-                <img src="src/assets/BLANCO.png" alt="BlockHub Logo" class="header-logo">
-                <h1>Editor de Archivos IPFS</h1>
-            </div>
-            <a href="conectar-wallet.html" class="back-link">← Volver a Wallet</a>
-        </div>
 
         <div class="editor-container">
             <!-- Sidebar -->
-            <div class="sidebar glass">
+            <div class="sidebar glass-dark">
                 <div class="file-section">
                     <h3>📁 Nuevo Archivo</h3>
                     
@@ -502,10 +737,19 @@
                 </div>
 
                 <div class="file-section">
-                    <h3>📚 Archivos Guardados</h3>
-                    <div id="fileList" class="file-list">
+                    <h3>📋 Historial de Commits</h3>
+                    <div id="commitHistoryHeader" style="margin-bottom: 1rem; display: none;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span id="repositoryName" class="repo-name"></span>
+                            <button class="btn btn-small btn-secondary" onclick="refreshCommitHistory()" id="refreshHistoryBtn">
+                                🔄 Actualizar
+                            </button>
+                        </div>
+                    </div>
+                    <div id="commitList" class="commit-history-list">
                         <div style="text-align: center; color: var(--text-muted); padding: 2rem;">
-                            No hay archivos guardados
+                            📝 No hay commits disponibles<br>
+                            <small>Los commits aparecerán aquí cuando estés en modo commit</small>
                         </div>
                     </div>
                 </div>
@@ -523,6 +767,20 @@
                         🔍 Probar Conectividad IPFS
                     </button>
                 </div>
+
+                <div class="file-section">
+                    <h3>⛓️ Blockchain</h3>
+                    <div id="web3Status" class="status-message status-info" style="font-size: 0.9rem; padding: 0.5rem;">
+                        🔍 Verificando conexión...
+                    </div>
+
+                    <button id="collaboratorsBtn" class="btn btn-secondary" style="width: 100%; margin-top: 0.5rem; background: linear-gradient(45deg, #00ffaa, #00aa88); color: #000;" onclick="goToCollaborators()">
+                        🤝 Colaboradores
+                    </button>
+                    <button id="backToWalletBtn" class="btn btn-secondary" style="width: 100%; margin-top: 0.5rem; background: linear-gradient(45deg, #90F209, #00aa00); color: #000;" onclick="handleBackToWallet(event)">
+                        ← Volver a Wallet
+                    </button>
+                </div>
             </div>
 
             <!-- Main Editor -->
@@ -532,6 +790,9 @@
                     <div class="editor-actions">
                         <button id="saveFileBtn" class="btn btn-success" disabled>
                             💾 Guardar en IPFS
+                        </button>
+                        <button id="createRepoBtn" class="btn btn-primary" disabled>
+                            🚀 Crear Repositorio
                         </button>
                         <button id="newFileBtn" class="btn btn-secondary">
                             📄 Nuevo
@@ -557,15 +818,23 @@ console.log('¡Hola BlockHub!');"
     <!-- Pinata Configuration -->
     <script src="pinata-config.js"></script>
     
+    <!-- Web3 and Contract Integration -->
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <script src="web3-contract-integration.js"></script>
+    
     <script>
 
         // Variables globales
         let currentFileHash = null;
         let currentFileName = 'nuevo-archivo.js';
         let savedFiles = JSON.parse(localStorage.getItem('blockhub_files') || '[]');
+        let web3Connected = false;
+        let lastRepositoryResult = null;
 
         // Variable global para almacenar el hash actual (accesible desde consola del navegador)
         window.BLOCKHUB_CURRENT_FILE_HASH = null;
+        window.BLOCKHUB_LAST_REPOSITORY = null;
 
         // DOM Elements
         const fileNameInput = document.getElementById('fileName');
@@ -576,10 +845,12 @@ console.log('¡Hola BlockHub!');"
         const loadFileBtn = document.getElementById('loadFileBtn');
         const currentFileNameEl = document.getElementById('currentFileName');
         const saveFileBtn = document.getElementById('saveFileBtn');
+        const createRepoBtn = document.getElementById('createRepoBtn');
         const newFileBtn = document.getElementById('newFileBtn');
         const codeEditor = document.getElementById('codeEditor');
         const statusMessage = document.getElementById('statusMessage');
         const testConnBtn = document.getElementById('testConnBtn');
+        const web3Status = document.getElementById('web3Status');
 
         // Utility Functions
         function showStatus(message, type = 'info') {
@@ -592,6 +863,197 @@ console.log('¡Hola BlockHub!');"
                     statusMessage.style.display = 'none';
                 }, 5000);
             }
+        }
+
+        // Web3 Functions - Simplified version that assumes connection exists
+        async function checkWeb3Connection() {
+            try {
+                // Check if Web3 is already initialized from wallet page
+                if (typeof window.ethereum === 'undefined') {
+                    throw new Error('MetaMask no detectado');
+                }
+
+                const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                if (accounts.length === 0) {
+                    throw new Error('No hay cuentas conectadas');
+                }
+
+                // Initialize BlockHub Web3 service if needed
+                if (window.blockHubWeb3) {
+                    await window.blockHubWeb3.initializeWeb3();
+                    web3Connected = true;
+                    
+                    const accountInfo = window.blockHubWeb3.getAccountInfo();
+                    web3Status.innerHTML = `🔗 Conectado: ${window.blockHubWeb3.formatAddress(accountInfo.account)}`;
+                    web3Status.className = 'status-message status-success';
+                    
+                    // Habilitar botón de crear repositorio si hay archivo
+                    if (currentFileHash) {
+                        createRepoBtn.disabled = false;
+                    }
+                    
+                    showStatus('✅ Wallet ya conectado desde página anterior', 'success');
+                    return true;
+                }
+                
+                throw new Error('Servicio BlockHub Web3 no disponible');
+                
+            } catch (error) {
+                console.error('Error verificando Web3:', error);
+                web3Status.innerHTML = `❌ ${error.message}`;
+                web3Status.className = 'status-message status-error';
+                
+                // Show user-friendly message suggesting to go back to wallet page
+                if (error.message.includes('No hay cuentas conectadas') || error.message.includes('MetaMask no detectado')) {
+                    showStatus('⚠️ Wallet no conectado. Ve a la página de Wallet para conectar primero.', 'warning');
+                } else {
+                    showStatus(`Error verificando conexión: ${error.message}`, 'error');
+                }
+                return false;
+            }
+        }
+
+        async function viewUserRepositories() {
+            if (!web3Connected) {
+                showStatus('Primero conecta tu wallet', 'error');
+                return;
+            }
+
+            try {
+                viewReposBtn.disabled = true;
+                viewReposBtn.innerHTML = '<span class="loading"></span>Cargando...';
+                
+                const repositories = await window.blockHubWeb3.getUserRepositories();
+                
+                if (repositories.length === 0) {
+                    showStatus('No tienes repositorios creados aún', 'info');
+                    return;
+                }
+                
+                // Mostrar repositorios en consola
+                console.log('📚 Tus repositorios:', repositories);
+                
+                // Crear modal o ventana emergente con los repositorios
+                const repoList = repositories.map(repo => 
+                    `📁 ${repo.name} (Token ID: ${repo.tokenId})\n   IPFS: ${repo.ipfsCID}`
+                ).join('\n\n');
+                
+                alert(`Tus Repositorios:\n\n${repoList}\n\nVer consola para más detalles.`);
+                
+                showStatus(`Se encontraron ${repositories.length} repositorios`, 'success');
+                
+            } catch (error) {
+                console.error('Error obteniendo repositorios:', error);
+                showStatus(`Error obteniendo repositorios: ${error.message}`, 'error');
+            } finally {
+                viewReposBtn.disabled = false;
+                viewReposBtn.innerHTML = '📚 Ver Mis Repositorios';
+            }
+        }
+
+        async function createBlockchainRepository() {
+            if (!web3Connected) {
+                const connected = await checkWeb3Connection();
+                if (!connected) {
+                    showStatus('❌ Wallet no conectado. Ve a la página de Wallet primero.', 'error');
+                    return;
+                }
+            }
+
+            if (!currentFileHash) {
+                showStatus('Primero debes guardar el archivo en IPFS', 'error');
+                return;
+            }
+
+            try {
+                createRepoBtn.disabled = true;
+                createRepoBtn.innerHTML = '<span class="loading"></span>Creando Repositorio...';
+                
+                showStatus('🚀 Creando repositorio en blockchain...', 'info');
+                
+                // Usar el nombre del archivo como nombre del repositorio
+                const repoName = currentFileName.replace(/\.[^/.]+$/, ""); // Remover extensión
+                
+                const result = await window.blockHubWeb3.createRepository(repoName, currentFileHash);
+                
+                lastRepositoryResult = result;
+                window.BLOCKHUB_LAST_REPOSITORY = result;
+                
+                // Guardar información del repositorio en localStorage
+                const repoInfo = {
+                    name: repoName,
+                    ipfsCID: currentFileHash,
+                    tokenId: result.tokenId,
+                    transactionHash: result.transactionHash,
+                    createdAt: Date.now(),
+                    fileName: currentFileName
+                };
+                
+                const savedRepos = JSON.parse(localStorage.getItem('blockhub_repositories') || '[]');
+                savedRepos.unshift(repoInfo);
+                localStorage.setItem('blockhub_repositories', JSON.stringify(savedRepos));
+                
+                // Mostrar información detallada del resultado
+                console.log('🎉 Repositorio creado:', result);
+                console.log('🔍 Información disponible en: window.BLOCKHUB_LAST_REPOSITORY');
+                console.log('📋 Detalles del Token ID:');
+                console.log('  Token ID recibido:', result.tokenId);
+                console.log('  CID original:', result.originalCID || currentFileHash);
+                console.log('  ¿Es el CID?:', result.tokenId === currentFileHash);
+                
+                // Mensaje de éxito más informativo
+                if (result.note) {
+                    showStatus(`✅ Repositorio "${repoName}" creado! ${result.note}`, 'success');
+                } else {
+                    showStatus(`✅ Repositorio "${repoName}" creado exitosamente! Token ID: ${result.tokenId}`, 'success');
+                }
+                
+                // Actualizar UI
+                updateRepositoryInfo(repoInfo);
+                
+            } catch (error) {
+                console.error('Error creando repositorio:', error);
+                showStatus(`Error creando repositorio: ${error.message}`, 'error');
+            } finally {
+                createRepoBtn.disabled = false;
+                createRepoBtn.innerHTML = '🚀 Crear Repositorio';
+            }
+        }
+
+        function updateRepositoryInfo(repoInfo) {
+            // Agregar información del repositorio a la UI
+            const repoInfoDiv = document.createElement('div');
+            repoInfoDiv.className = 'status-message status-success';
+            repoInfoDiv.style.marginTop = '1rem';
+            
+            // Verificar si el token ID es realmente el CID
+            const isCID = repoInfo.tokenId && repoInfo.tokenId.startsWith('Qm');
+            const tokenDisplay = isCID ? 
+                `🔗 ${repoInfo.tokenId.substring(0, 10)}...` : 
+                `🆔 ${repoInfo.tokenId}`;
+            
+            repoInfoDiv.innerHTML = `
+                <strong>🎉 Repositorio Creado!</strong><br>
+                📁 Nombre: ${repoInfo.name}<br>
+                ${tokenDisplay}<br>
+                🔗 IPFS: ${repoInfo.ipfsCID ? repoInfo.ipfsCID.substring(0, 10) + '...' : 'N/A'}<br>
+                📄 TX: ${repoInfo.transactionHash ? repoInfo.transactionHash.substring(0, 10) + '...' : 'N/A'}<br>
+                <small style="opacity: 0.8;">
+                    ${isCID ? '✅ Token ID es el CID de Pinata' : '⚠️ Verificar Token ID en consola'}
+                </small>
+            `;
+            
+            // Agregar después del editor
+            const editorArea = document.querySelector('.editor-area');
+            
+            // Remover info anterior si existe
+            const existingInfo = editorArea.querySelector('.repository-info');
+            if (existingInfo) {
+                existingInfo.remove();
+            }
+            
+            repoInfoDiv.className += ' repository-info';
+            editorArea.appendChild(repoInfoDiv);
         }
 
         function updateFileName() {
@@ -623,22 +1085,232 @@ console.log('¡Hola BlockHub!');"
             }
         }
 
-        function updateFileList() {
-            if (savedFiles.length === 0) {
-                fileList.innerHTML = `
+        // === FUNCIONES DE HISTORIAL DE COMMITS ===
+
+        // Cargar historial de commits del repositorio actual
+        async function loadCommitHistory(tokenId) {
+            const commitList = document.getElementById('commitList');
+            const commitHistoryHeader = document.getElementById('commitHistoryHeader');
+            
+            try {
+                console.log(`📋 Cargando historial de commits para repositorio ${tokenId}...`);
+                
+                // Mostrar estado de carga
+                commitList.innerHTML = `
                     <div style="text-align: center; color: var(--text-muted); padding: 2rem;">
-                        No hay archivos guardados
+                        🔄 Cargando historial de commits...
                     </div>
                 `;
-                return;
+                
+                // Verificar conexión Web3
+                if (!window.blockHubWeb3 || !window.blockHubWeb3.repoFactoryContract) {
+                    throw new Error('Web3 no conectado o contrato no disponible');
+                }
+                
+                // Llamar retrieveCommits del contrato
+                const commitsData = await window.blockHubWeb3.repoFactoryContract.retrieveCommits(tokenId);
+                console.log('📥 Datos de commits recibidos:', commitsData);
+                
+                // Destructurar los arrays retornados (incluyendo commitCIDs)
+                const [messages, timestamps, committers, statuses, commitCIDs] = commitsData;
+                
+                console.log('📋 Arrays destructurados:', {
+                    messages: messages.length,
+                    timestamps: timestamps.length,
+                    committers: committers.length,
+                    statuses: statuses.length,
+                    commitCIDs: commitCIDs ? commitCIDs.length : 'No disponible'
+                });
+                
+                // Convertir a formato manejable
+                const commits = [];
+                for (let i = 0; i < messages.length; i++) {
+                    const status = parseInt(statuses[i].toString());
+                    const timestamp = parseInt(timestamps[i].toString());
+                    const cid = commitCIDs && commitCIDs[i] ? commitCIDs[i] : null;
+                    
+                    commits.push({
+                        index: i,
+                        message: messages[i],
+                        timestamp: timestamp,
+                        timestampDate: new Date(timestamp * 1000),
+                        committer: committers[i],
+                        status: status,
+                        statusText: status === 0 ? 'pending' : status === 1 ? 'approved' : 'rejected',
+                        cid: cid
+                    });
+                }
+                
+                // Almacenar commits globalmente para acceso desde loadCommitFile
+                window.COMMIT_HISTORY = commits;
+                
+                console.log(`📋 Total commits encontrados: ${commits.length}`);
+                
+                // Mostrar header con información del repositorio
+                if (window.COMMIT_MODE && window.COMMIT_MODE.active) {
+                    document.getElementById('repositoryName').textContent = `📂 ${window.COMMIT_MODE.repoName} (Token: ${tokenId})`;
+                    commitHistoryHeader.style.display = 'block';
+                }
+                
+                // Renderizar commits (orden cronológico inverso: más recientes primero)
+                if (commits.length === 0) {
+                    commitList.innerHTML = `
+                        <div style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                            📝 No hay commits en este repositorio<br>
+                            <small>Sé el primero en hacer un commit</small>
+                        </div>
+                    `;
+                } else {
+                    const commitsHtml = commits.reverse().map(commit => `
+                        <div class="commit-item ${commit.statusText}" onclick="loadCommitFile(${commit.index}, '${commit.message.replace(/'/g, "\\'")}')">
+                            <div class="commit-header">
+                                <span class="commit-status ${commit.statusText}">
+                                    ${commit.statusText === 'pending' ? '⏳ Pendiente' : 
+                                      commit.statusText === 'approved' ? '✅ Aprobado' : '🚫 Rechazado'}
+                                </span>
+                                <span style="font-size: 0.8rem; color: var(--text-muted);">
+                                    Commit #${commit.index}
+                                </span>
+                            </div>
+                            <div class="commit-message">💬 ${commit.message}</div>
+                            <div class="commit-meta">
+                                <span>👤 ${commit.committer.substring(0, 10)}...</span>
+                                <span>📅 ${commit.timestampDate.toLocaleDateString()}</span>
+                                <span style="font-family: monospace; ${commit.cid ? 'color: var(--secondary-color)' : 'color: var(--text-muted)'}">
+                                    ${commit.cid ? `🔗 ${commit.cid.substring(0, 6)}...${commit.cid.substring(commit.cid.length - 4)}` : '⚠️ Sin CID'}
+                                </span>
+                            </div>
+                        </div>
+                    `).join('');
+                    
+                    commitList.innerHTML = commitsHtml;
+                }
+                
+            } catch (error) {
+                console.error('❌ Error cargando historial de commits:', error);
+                commitList.innerHTML = `
+                    <div style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                        ❌ Error cargando commits<br>
+                        <small>${error.message}</small>
+                    </div>
+                `;
             }
+        }
 
-            fileList.innerHTML = savedFiles.map(file => `
-                <div class="file-item" onclick="loadFileFromList('${file.hash}', '${file.name}')">
-                    <div class="file-name">${file.name}</div>
-                    <div class="file-hash">${file.hash}</div>
-                </div>
-            `).join('');
+        // Cargar archivo específico de un commit
+        async function loadCommitFile(commitIndex, commitMessage) {
+            try {
+                if (!window.COMMIT_MODE || !window.COMMIT_MODE.active) {
+                    alert('❌ Función solo disponible en modo commit');
+                    return;
+                }
+                
+                console.log(`📂 Cargando archivo del commit #${commitIndex}: ${commitMessage}`);
+                
+                // Buscar el commit específico en el historial almacenado
+                let commitCid = null;
+                let commitFound = false;
+                
+                if (window.COMMIT_HISTORY && window.COMMIT_HISTORY.length > 0) {
+                    const commit = window.COMMIT_HISTORY.find(c => c.index === commitIndex);
+                    
+                    if (commit) {
+                        commitFound = true;
+                        commitCid = commit.cid;
+                        
+                        console.log(`🔍 Commit encontrado en historial:`, {
+                            index: commit.index,
+                            message: commit.message,
+                            cid: commit.cid,
+                            status: commit.statusText
+                        });
+                        
+                        if (commitCid) {
+                            console.log(`✅ Usando CID específico del commit: ${commitCid}`);
+                            showStatus(`📂 Cargando archivo específico del commit #${commitIndex}...`, 'info');
+                        } else {
+                            console.log(`⚠️ Commit #${commitIndex} no tiene CID específico`);
+                        }
+                    }
+                }
+                
+                // Si no se encontró en el historial o no tiene CID, usar fallback
+                if (!commitFound || !commitCid) {
+                    console.log('⚠️ Usando CID original como fallback');
+                    commitCid = window.COMMIT_MODE.originalCid;
+                    showStatus(`⚠️ Usando archivo base del repositorio (CID específico no disponible para commit #${commitIndex})`, 'warning');
+                }
+                
+                console.log(`🔗 Cargando desde CID: ${commitCid}`);
+                
+                const fileData = await loadFromPinata(commitCid);
+                
+                if (fileData && fileData.content) {
+                    codeEditor.value = fileData.content;
+                    currentFileName = fileData.fileName || `commit-${commitIndex}.js`;
+                    
+                    // Actualizar título con información del commit
+                    const isSpecificCID = commitCid !== window.COMMIT_MODE.originalCid;
+                    if (isSpecificCID) {
+                        currentFileNameEl.textContent = `📋 Commit #${commitIndex}: ${commitMessage}`;
+                    } else {
+                        currentFileNameEl.textContent = `📋 Commit #${commitIndex}: ${commitMessage} (archivo base)`;
+                    }
+                    
+                    // Actualizar hash global
+                    window.BLOCKHUB_CURRENT_FILE_HASH = commitCid;
+                    
+                    // Marcar visualmente el commit activo
+                    markActiveCommit(commitIndex);
+                    
+                    const statusText = isSpecificCID ? 
+                        `✅ Archivo específico del commit #${commitIndex} cargado` :
+                        `⚠️ Archivo base cargado para commit #${commitIndex}`;
+                    
+                    showStatus(statusText, isSpecificCID ? 'success' : 'warning');
+                    
+                    console.log(`✅ Commit #${commitIndex} cargado:`, {
+                        message: commitMessage,
+                        cid: commitCid,
+                        fileName: currentFileName,
+                        isSpecificCID: isSpecificCID,
+                        foundInHistory: commitFound
+                    });
+                } else {
+                    showStatus('⚠️ No se pudo cargar el contenido del commit', 'warning');
+                }
+                
+            } catch (error) {
+                console.error('❌ Error cargando archivo del commit:', error);
+                showStatus(`❌ Error cargando commit: ${error.message}`, 'error');
+            }
+        }
+
+        // Marcar visualmente el commit activo
+        function markActiveCommit(activeIndex) {
+            // Remover clase active de todos los commits
+            document.querySelectorAll('.commit-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Agregar clase active al commit seleccionado
+            const activeCommit = document.querySelector(`[onclick*="loadCommitFile(${activeIndex}"]`);
+            if (activeCommit) {
+                activeCommit.classList.add('active');
+            }
+        }
+
+        // Actualizar historial de commits
+        function refreshCommitHistory() {
+            if (window.COMMIT_MODE && window.COMMIT_MODE.active) {
+                loadCommitHistory(window.COMMIT_MODE.tokenId);
+            }
+        }
+
+        // Función legacy para compatibilidad (puede ser removida)
+        function updateFileList() {
+            // Esta función ahora no hace nada, reemplazada por loadCommitHistory
+            console.log('📋 updateFileList reemplazada por loadCommitHistory');
         }
 
         function saveFileToLocalStorage(name, hash) {
@@ -665,13 +1337,24 @@ console.log('¡Hola BlockHub!');"
         // Pinata Functions
         async function uploadToPinata(content, fileName) {
             try {
+                console.log('🔍 Verificando Pinata Service...');
+                console.log('🔧 window.pinataService:', !!window.pinataService);
+                console.log('⚙️ isConfigured:', window.pinataService?.isConfigured);
+                
                 // Verificar si Pinata está configurado
                 if (window.pinataService && window.pinataService.isConfigured) {
                     showStatus('📤 Subiendo archivo a Pinata IPFS...', 'info');
                     
+                    console.log('📤 Llamando window.pinataService.uploadFile...');
                     const result = await window.pinataService.uploadFile(content, fileName);
+                    console.log('📥 Resultado de Pinata:', result);
                     
-                    return result.hash;
+                    if (result && result.hash) {
+                        return result.hash;
+                    } else {
+                        console.error('❌ Resultado de Pinata no válido:', result);
+                        throw new Error('Pinata no retornó un hash válido');
+                    }
                 } else {
                     // Modo simulación cuando Pinata no está configurado
                     showStatus('⚠️ Pinata no configurado. Usando almacenamiento local...', 'info');
@@ -803,6 +1486,18 @@ console.log('¡Hola BlockHub!');"
                 
                 saveFileToLocalStorage(currentFileName, hash);
                 
+                // Habilitar botón de crear repositorio si Web3 está conectado
+                if (web3Connected) {
+                    createRepoBtn.disabled = false;
+                } else {
+                    // Check if Web3 can be connected
+                    checkWeb3Connection().then(connected => {
+                        if (connected) {
+                            createRepoBtn.disabled = false;
+                        }
+                    });
+                }
+                
                 showStatus(`✅ Archivo guardado exitosamente en IPFS: ${hash}`, 'success');
                 console.log('📁 Archivo guardado - Hash IPFS:', hash);
                 console.log('🔍 Accede al hash desde: window.BLOCKHUB_CURRENT_FILE_HASH');
@@ -892,6 +1587,7 @@ console.log('¡Hola BlockHub!');"
         fileTypeSelect.addEventListener('change', updateFileName);
         createFileBtn.addEventListener('click', handleCreateFile);
         saveFileBtn.addEventListener('click', handleSaveFile);
+        createRepoBtn.addEventListener('click', createBlockchainRepository);
         loadFileBtn.addEventListener('click', handleLoadFile);
         newFileBtn.addEventListener('click', handleNewFile);
         testConnBtn.addEventListener('click', testIPFSConnectivity);
@@ -913,13 +1609,505 @@ console.log('¡Hola BlockHub!');"
             }
         });
 
+        // Navigation Functions
+        function handleBackToWallet(event) {
+            console.log('🔄 Intentando navegar a conectar-wallet.html...');
+            
+            // Si el evento viene de un botón, prevenir el comportamiento por defecto
+            if (event && event.target && event.target.tagName === 'BUTTON') {
+                event.preventDefault();
+            }
+            
+            // Lista de rutas a intentar
+            const routes = [
+                'conectar-wallet.html',
+                './conectar-wallet.html',
+                '../conectar-wallet.html',
+                '/conectar-wallet.html'
+            ];
+            
+            // Función para verificar si un archivo existe
+            async function checkFileExists(url) {
+                try {
+                    const response = await fetch(url, { method: 'HEAD' });
+                    return response.ok;
+                } catch {
+                    return false;
+                }
+            }
+            
+            // Intentar cada ruta
+            async function tryNavigation() {
+                for (const route of routes) {
+                    try {
+                        console.log(`🔍 Probando ruta: ${route}`);
+                        
+                        // Verificar si el archivo existe
+                        const exists = await checkFileExists(route);
+                        if (exists) {
+                            console.log(`✅ Archivo encontrado: ${route}`);
+                            window.location.href = route;
+                            return true;
+                        } else {
+                            console.log(`❌ Archivo no encontrado: ${route}`);
+                        }
+                    } catch (error) {
+                        console.log(`❌ Error con ruta ${route}:`, error.message);
+                    }
+                }
+                return false;
+            }
+            
+            // Ejecutar navegación
+            tryNavigation().then(success => {
+                if (!success) {
+                    console.error('❌ No se pudo encontrar conectar-wallet.html');
+                    
+                    // Mostrar opciones al usuario
+                    const userChoice = confirm(
+                        'No se pudo encontrar la página conectar-wallet.html.\n\n' +
+                        '¿Quieres ir a la página principal (index.html) en su lugar?\n\n' +
+                        'Presiona OK para ir a index.html o Cancelar para quedarte aquí.'
+                    );
+                    
+                    if (userChoice) {
+                        try {
+                            window.location.href = 'index.html';
+                        } catch (error) {
+                            alert('Error: No se pudo navegar. Intenta refrescar la página o navegar manualmente.');
+                        }
+                    }
+                }
+            });
+            
+            // Si es un enlace, prevenir navegación por defecto hasta verificar
+            if (event && event.target && event.target.tagName === 'A') {
+                event.preventDefault();
+                return false;
+            }
+        }
+
+        // Función simple de navegación como fallback
+        function goToWallet() {
+            console.log('🔄 Navegación simple a wallet...');
+            try {
+                window.location = 'conectar-wallet.html';
+            } catch (error) {
+                try {
+                    window.open('conectar-wallet.html', '_self');
+                } catch (error2) {
+                    window.location.replace('conectar-wallet.html');
+                }
+            }
+        }
+        
+        // Hacer función disponible globalmente para debug
+        window.goToWallet = goToWallet;
+
         // Initialize
         updateFileList();
-        showStatus('💡 Consejo: Usa Ctrl+S para guardar rápidamente', 'info');
+        showStatus('🔄 Verificando conexión de wallet...', 'info');
+        
+        // Verificar si Web3 ya está conectado desde la página de wallet
+        setTimeout(async () => {
+            console.log('🔍 Verificando estado de conexión Web3...');
+            const connected = await checkWeb3Connection();
+            
+            if (connected) {
+                console.log('✅ Wallet conectado desde página anterior');
+            } else {
+                console.log('⚠️ Wallet no conectado - usuario debe ir a página de wallet');
+                showStatus('💡 Ve a la página de Wallet para conectar MetaMask', 'info');
+            }
+        }, 1000);
+        
+        // Función para navegar a colaboradores
+        function goToCollaborators() {
+            console.log('🤝 Navegando a colaboradores.html...');
+            
+            const routes = [
+                'colaboradores.html',
+                './colaboradores.html',
+                '../colaboradores.html',
+                '/colaboradores.html'
+            ];
+            
+            // Intentar cada ruta
+            function tryRoute(index) {
+                if (index >= routes.length) {
+                    alert('❌ No se pudo encontrar la página de colaboradores. Asegúrate de que colaboradores.html esté en el mismo directorio.');
+                    return;
+                }
+                
+                const route = routes[index];
+                console.log(`🔍 Probando ruta: ${route}`);
+                
+                try {
+                    window.location.href = route;
+                } catch (error) {
+                    console.log(`❌ Error con ruta ${route}:`, error.message);
+                    tryRoute(index + 1);
+                }
+            }
+            
+            tryRoute(0);
+        }
+
+        // Detectar modo commit desde parámetros URL
+        function checkCommitMode() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const mode = urlParams.get('mode');
+            
+            if (mode === 'commit') {
+                const tokenId = urlParams.get('tokenId');
+                const cid = urlParams.get('cid');
+                const repoName = urlParams.get('repoName');
+                const owner = urlParams.get('owner');
+                
+                console.log('🔄 Modo COMMIT detectado:', { tokenId, cid, repoName, owner });
+                
+                if (tokenId && cid && repoName) {
+                    setupCommitMode(tokenId, cid, repoName, owner);
+                } else {
+                    console.error('❌ Parámetros de commit incompletos');
+                }
+            }
+        }
+
+        // Configurar interfaz para modo commit
+        function setupCommitMode(tokenId, cid, repoName, owner) {
+            console.log(`🔧 Configurando modo commit para: ${repoName} (Token: ${tokenId})`);
+            console.log(`👤 Dueño del repositorio: ${owner}`);
+            
+            // Cambiar título y estado del editor
+            document.title = `BlockHub - Commit: ${repoName}`;
+            const titleElement = document.querySelector('.logo h1');
+            if (titleElement) {
+                titleElement.textContent = `Editor de Archivos IPFS - Commit: ${repoName}`;
+            }
+            
+            // Agregar indicador visual prominente de modo commit
+            const header = document.querySelector('.header');
+            if (header) {
+                const commitBanner = document.createElement('div');
+                commitBanner.id = 'commitModeBanner';
+                commitBanner.style.cssText = `
+                    background: linear-gradient(45deg, #ff6b00, #ff8c00);
+                    color: white;
+                    padding: 10px;
+                    text-align: center;
+                    font-weight: bold;
+                    font-size: 1.1rem;
+                    box-shadow: 0 2px 10px rgba(255, 107, 0, 0.3);
+                    animation: pulse 2s infinite;
+                `;
+                commitBanner.innerHTML = `🔄 MODO COMMIT ACTIVO - Repositorio: ${repoName} (Token: ${tokenId}) 🔄`;
+                header.parentNode.insertBefore(commitBanner, header.nextSibling);
+            }
+            
+            // Agregar estilo de animación para el banner
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes pulse {
+                    0%, 100% { opacity: 1; }
+                    50% { opacity: 0.8; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // Ocultar botones que no son necesarios en modo commit
+            const createRepoBtn = document.getElementById('createRepoBtn');
+            if (createRepoBtn) {
+                createRepoBtn.style.display = 'none';
+            }
+            
+            const viewReposBtn = document.getElementById('viewReposBtn');
+            if (viewReposBtn) {
+                viewReposBtn.style.display = 'none';
+            }
+            
+            // Modificar el botón de guardar para que sea "Hacer Commit"
+            const saveFileBtn = document.getElementById('saveFileBtn');
+            if (saveFileBtn) {
+                saveFileBtn.innerHTML = '🚀 Hacer Commit';
+                saveFileBtn.onclick = () => handleCommitSave(tokenId, cid, repoName);
+                saveFileBtn.style.background = 'linear-gradient(45deg, #ff6b00, #ff8c00)';
+                saveFileBtn.style.color = 'white';
+            }
+            
+            // Agregar botón para volver a colaboradores
+            const sidebar = document.querySelector('.sidebar');
+            if (sidebar) {
+                const backToCollabBtn = document.createElement('button');
+                backToCollabBtn.className = 'btn btn-secondary';
+                backToCollabBtn.style.cssText = 'width: 100%; margin-top: 0.5rem; background: linear-gradient(45deg, #00aa88, #00ffaa); color: #000;';
+                backToCollabBtn.innerHTML = '← Volver a Colaboradores';
+                backToCollabBtn.onclick = () => {
+                    if (confirm('¿Quieres volver a colaboradores? Se perderán los cambios no guardados.')) {
+                        window.location.href = 'colaboradores.html';
+                    }
+                };
+                sidebar.appendChild(backToCollabBtn);
+                
+                // Agregar botón para depositar fondos (solo para dueños)
+                if (isRepoOwner()) {
+                    const depositBtn = document.createElement('button');
+                    depositBtn.className = 'btn btn-primary';
+                    depositBtn.style.cssText = 'width: 100%; margin-top: 0.5rem; background: linear-gradient(45deg, #ff6b00, #ff8c00); color: white;';
+                    depositBtn.innerHTML = '💰 Depositar ETH (Dueño)';
+                    depositBtn.onclick = () => showDepositModal();
+                    sidebar.appendChild(depositBtn);
+                } else {
+                    // Mensaje informativo para no-dueños
+                    const infoDiv = document.createElement('div');
+                    infoDiv.style.cssText = 'margin-top: 0.5rem; padding: 0.5rem; background: #f0f0f0; border-radius: 5px; font-size: 0.9rem; color: #666;';
+                    infoDiv.innerHTML = '💡 Solo el dueño puede depositar ETH';
+                    sidebar.appendChild(infoDiv);
+                }
+            }
+            
+            // Cargar archivo del repositorio automáticamente
+            loadRepositoryFile(cid);
+            
+            // Cargar historial de commits del repositorio
+            setTimeout(() => {
+                loadCommitHistory(tokenId);
+            }, 1000);
+            
+            // Mostrar información del repositorio
+            showStatus(`📝 Modo Commit activado para: ${repoName} (Token: ${tokenId})`, 'info');
+            
+            // Guardar datos del commit en variables globales
+            window.COMMIT_MODE = {
+                active: true,
+                tokenId: tokenId,
+                originalCid: cid,
+                repoName: repoName,
+                owner: owner
+            };
+        }
+
+        // Cargar archivo del repositorio para editar
+        async function loadRepositoryFile(cid) {
+            try {
+                showStatus('📥 Cargando archivo del repositorio...', 'info');
+                
+                const fileData = await loadFromPinata(cid);
+                
+                if (fileData && fileData.content) {
+                    codeEditor.value = fileData.content;
+                    currentFileName = fileData.fileName || 'archivo-repo.js';
+                    currentFileNameEl.textContent = `Editando: ${currentFileName}`;
+                    
+                    showStatus(`✅ Archivo cargado: ${currentFileName}`, 'success');
+                    
+                    // Habilitar botón de commit
+                    const saveFileBtn = document.getElementById('saveFileBtn');
+                    if (saveFileBtn) {
+                        saveFileBtn.disabled = false;
+                    }
+                } else {
+                    showStatus('⚠️ No se pudo cargar el contenido del archivo', 'warning');
+                }
+                
+            } catch (error) {
+                console.error('❌ Error cargando archivo del repositorio:', error);
+                showStatus(`❌ Error cargando archivo: ${error.message}`, 'error');
+            }
+        }
+
+        // Manejar guardado como commit
+        async function handleCommitSave(tokenId, originalCid, repoName) {
+            try {
+                if (!window.COMMIT_MODE || !window.COMMIT_MODE.active) {
+                    console.error('❌ Modo commit no activo');
+                    return;
+                }
+                
+                // Solicitar mensaje de commit
+                const commitMessage = prompt('💬 Mensaje del commit:', 'Actualización de archivo');
+                if (!commitMessage) {
+                    showStatus('❌ Commit cancelado: se requiere un mensaje', 'error');
+                    return;
+                }
+                
+                showStatus('📤 Subiendo archivo modificado...', 'info');
+                
+                // 1. Subir archivo modificado a IPFS
+                const content = codeEditor.value;
+                
+                console.log('📤 Preparando archivo para subir...');
+                console.log('📝 Contenido:', content.substring(0, 100) + '...');
+                console.log('📁 Nombre archivo:', currentFileName);
+                
+                let newCid;
+                try {
+                    newCid = await uploadToPinata(content, currentFileName);
+                    if (!newCid) {
+                        throw new Error('No se obtuvo CID de Pinata');
+                    }
+                    console.log('✅ Nuevo archivo subido con CID:', newCid);
+                } catch (uploadError) {
+                    console.error('❌ Error detallado en upload:', uploadError);
+                    throw new Error(`Error subiendo archivo: ${uploadError.message}`);
+                }
+                
+                showStatus('⛓️ Procesando commit en blockchain...', 'info');
+                
+                // 2. Llamar processNewCommit
+                console.log(`🔄 Llamando processNewCommit(${tokenId}, "${commitMessage}", "${newCid}")`);
+                
+                if (!window.blockHubWeb3.repoFactoryContract) {
+                    throw new Error('Contrato no disponible');
+                }
+                
+                const tx = await window.blockHubWeb3.repoFactoryContract.processNewCommit(
+                    tokenId, 
+                    commitMessage, 
+                    newCid
+                );
+                
+                console.log('⏳ Transacción enviada:', tx.hash);
+                showStatus(`⏳ Transacción enviada: ${tx.hash}`, 'info');
+                
+                const receipt = await tx.wait();
+                console.log('✅ Commit confirmado:', receipt);
+                
+                showStatus(`🎉 ¡Commit realizado exitosamente! TX: ${receipt.transactionHash}`, 'success');
+                
+                // Opcional: redirigir de vuelta a colaboradores después de un tiempo
+                setTimeout(() => {
+                    if (confirm('¿Quieres volver a la página de colaboradores?')) {
+                        window.location.href = 'colaboradores.html';
+                    }
+                }, 3000);
+                
+            } catch (error) {
+                console.error('❌ Error en commit:', error);
+                showStatus(`❌ Error en commit: ${error.message}`, 'error');
+            }
+        }
+
+        // Verificar si el usuario actual es dueño del repositorio (modo commit)
+        function isRepoOwner() {
+            if (!window.COMMIT_MODE || !window.COMMIT_MODE.active) {
+                return false;
+            }
+            
+            if (!window.blockHubWeb3) {
+                return false;
+            }
+            
+            const accountInfo = window.blockHubWeb3.getAccountInfo();
+            if (!accountInfo || !accountInfo.account) {
+                return false;
+            }
+            
+            const currentAccount = accountInfo.account.toLowerCase();
+            const repoOwner = window.COMMIT_MODE.owner?.toLowerCase();
+            
+            console.log('🔍 Verificando ownership en modo commit...');
+            console.log('👤 Usuario actual:', currentAccount);
+            console.log('👑 Dueño del repo:', repoOwner);
+            console.log('📂 Repositorio:', window.COMMIT_MODE.tokenId);
+            console.log('✅ Es dueño?:', currentAccount === repoOwner);
+            
+            return currentAccount === repoOwner;
+        }
+
+        // Mostrar modal de depósito (modo commit)
+        function showDepositModal() {
+            if (!window.COMMIT_MODE || !window.COMMIT_MODE.active) {
+                alert('❌ Modal de depósito solo disponible en modo commit');
+                return;
+            }
+            
+            const { tokenId, repoName } = window.COMMIT_MODE;
+            const ethAmount = prompt(`💰 ¿Cuánto ETH quieres depositar al repositorio "${repoName}"?\n\nToken ID: ${tokenId}\nMínimo: 0.0001 ETH`, '0.001');
+            
+            if (!ethAmount || parseFloat(ethAmount) <= 0) {
+                showStatus('❌ Depósito cancelado: cantidad no válida', 'error');
+                return;
+            }
+            
+            if (parseFloat(ethAmount) < 0.0001) {
+                showStatus('❌ Cantidad mínima: 0.0001 ETH', 'error');
+                return;
+            }
+            
+            // Confirmar depósito
+            if (!confirm(`¿Confirmas depositar ${ethAmount} ETH al repositorio "${repoName}"?\n\nEsta transacción no se puede revertir.`)) {
+                showStatus('❌ Depósito cancelado por el usuario', 'warning');
+                return;
+            }
+            
+            executeDepositInEditor(tokenId, ethAmount, repoName);
+        }
+
+        // Ejecutar depósito en editor
+        async function executeDepositInEditor(tokenId, ethAmount, repoName) {
+            try {
+                console.log(`💰 Iniciando depósito: ${ethAmount} ETH al repositorio ${tokenId}`);
+                
+                if (!window.blockHubWeb3 || !window.blockHubWeb3.repoFactoryContract) {
+                    throw new Error('Web3 no conectado o contrato no disponible');
+                }
+                
+                showStatus('💰 Preparando transacción de depósito...', 'info');
+                
+                const weiAmount = window.ethers.utils.parseEther(ethAmount);
+                console.log(`💰 Enviando ${ethAmount} ETH (${weiAmount.toString()} Wei)`);
+                
+                const tx = await window.blockHubWeb3.repoFactoryContract.depositToRepo(
+                    tokenId, 
+                    { value: weiAmount }
+                );
+                
+                console.log('⏳ Transacción enviada:', tx.hash);
+                showStatus(`⏳ Transacción enviada: ${tx.hash}`, 'info');
+                
+                const receipt = await tx.wait();
+                console.log('✅ Depósito confirmado:', receipt);
+                
+                // Buscar evento depositedETH
+                const depositEvent = receipt.events?.find(e => e.event === 'depositedETH');
+                if (depositEvent) {
+                    const [repoTokenId, depositor, amount] = depositEvent.args;
+                    console.log('🎉 Evento depositedETH:', {
+                        tokenId: repoTokenId.toString(),
+                        depositor: depositor,
+                        amount: window.ethers.utils.formatEther(amount) + ' ETH'
+                    });
+                }
+                
+                showStatus(`🎉 ¡Depósito exitoso! ${ethAmount} ETH depositados a "${repoName}". TX: ${receipt.transactionHash}`, 'success');
+                
+            } catch (error) {
+                console.error('❌ Error en depósito:', error);
+                showStatus(`❌ Error en depósito: ${error.message}`, 'error');
+            }
+        }
+
+        // Ejecutar verificación de modo commit al cargar
+        setTimeout(() => {
+            checkCommitMode();
+        }, 1000);
         
         // Mostrar información en consola
         console.log('🚀 BlockHub File Editor cargado');
         console.log('📋 Hash del archivo actual disponible en: window.BLOCKHUB_CURRENT_FILE_HASH');
+        console.log('🎯 Última transacción de repositorio en: window.BLOCKHUB_LAST_REPOSITORY');
+        console.log('🔧 Servicio Web3 disponible en: window.blockHubWeb3');
+
+        // Navbar background effect on scroll
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 100) {
+                navbar.style.background = 'rgba(0, 0, 0, 0.3)';
+            } else {
+                navbar.style.background = 'rgba(235, 235, 235, 0.1)';
+            }
+        });
     </script>
 </body>
 </html>

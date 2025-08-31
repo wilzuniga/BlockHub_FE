@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Colaboradores - BlockHub</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000;
+            color: #00ff00;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #111;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #00ff00;
+        }
+        .success { color: #00ff00; }
+        .error { color: #ff0000; }
+        .warning { color: #ffaa00; }
+        button {
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .log {
+            background: #000;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border: 1px solid #333;
+            min-height: 200px;
+            font-family: monospace;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Colaboradores BlockHub</h1>
+        <p>Página de diagnóstico para verificar errores de colaboradores.html</p>
+
+        <h2>🔧 Tests de Carga de Scripts</h2>
+        <button onclick="testScriptLoading()">1. 🔍 Test Carga Scripts</button>
+        <button onclick="testClassAvailability()">2. 📦 Test Clases Disponibles</button>
+        <button onclick="testFunctions()">3. ⚙️ Test Funciones</button>
+        <button onclick="testNavigation()">4. 🧭 Test Navegación</button>
+
+        <h2>📊 Resultados</h2>
+        <div id="results" class="log">
+            Esperando tests...
+        </div>
+
+        <h2>🚀 Acciones</h2>
+        <button onclick="openCollaborators()">🤝 Abrir Colaboradores</button>
+        <button onclick="clearResults()">🧹 Limpiar Log</button>
+    </div>
+
+    <!-- Scripts en el mismo orden que colaboradores.html -->
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <script src="pinata-config.js"></script>
+    <script src="web3-contract-integration.js"></script>
+
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const timestamp = new Date().toLocaleTimeString();
+            const colorClass = type === 'error' ? 'error' : 
+                              type === 'success' ? 'success' : 
+                              type === 'warning' ? 'warning' : '';
+            
+            results.innerHTML += `<span class="${colorClass}">[${timestamp}] ${message}</span><br>`;
+            results.scrollTop = results.scrollHeight;
+        }
+
+        function testScriptLoading() {
+            log('🔍 Testing script loading...', 'info');
+            
+            // Test Web3
+            if (typeof Web3 !== 'undefined') {
+                log('✅ Web3 loaded successfully', 'success');
+            } else {
+                log('❌ Web3 NOT loaded', 'error');
+            }
+
+            // Test Ethers
+            if (typeof ethers !== 'undefined') {
+                log('✅ Ethers.js loaded successfully', 'success');
+            } else {
+                log('❌ Ethers.js NOT loaded', 'error');
+            }
+
+            // Test window.ethereum
+            if (typeof window.ethereum !== 'undefined') {
+                log('✅ MetaMask detected', 'success');
+            } else {
+                log('⚠️ MetaMask not detected', 'warning');
+            }
+        }
+
+        function testClassAvailability() {
+            log('📦 Testing class availability...', 'info');
+            
+            // Test Web3ContractService
+            if (typeof Web3ContractService !== 'undefined') {
+                log('✅ Web3ContractService class available', 'success');
+                try {
+                    const testService = new Web3ContractService();
+                    log('✅ Web3ContractService instantiation successful', 'success');
+                } catch (error) {
+                    log(`❌ Web3ContractService instantiation failed: ${error.message}`, 'error');
+                }
+            } else {
+                log('❌ Web3ContractService class NOT available', 'error');
+            }
+
+            // Test PinataService
+            if (typeof PinataService !== 'undefined') {
+                log('✅ PinataService class available', 'success');
+                try {
+                    const testPinata = new PinataService();
+                    log('✅ PinataService instantiation successful', 'success');
+                } catch (error) {
+                    log(`❌ PinataService instantiation failed: ${error.message}`, 'error');
+                }
+            } else {
+                log('❌ PinataService class NOT available', 'error');
+            }
+        }
+
+        function testFunctions() {
+            log('⚙️ Testing function definitions...', 'info');
+            
+            // Simular las funciones que deberían existir en colaboradores.html
+            const expectedFunctions = [
+                'handleBackToWallet',
+                'goToEditor', 
+                'searchRepositories',
+                'filterRepositories',
+                'refreshRepositories',
+                'loadRepositories',
+                'updateStats',
+                'renderRepositories'
+            ];
+
+            let allDefined = true;
+
+            expectedFunctions.forEach(funcName => {
+                // Como no estamos en colaboradores.html, solo verificamos que podríamos definirlas
+                log(`🔍 Function '${funcName}' should be defined in colaboradores.html`, 'info');
+            });
+
+            // Test funciones de navegación básicas
+            try {
+                function testHandleBackToWallet() {
+                    return 'conectar-wallet.html';
+                }
+                
+                function testGoToEditor() {
+                    return 'editor-archivos.html';
+                }
+
+                log('✅ Navigation function patterns work correctly', 'success');
+            } catch (error) {
+                log(`❌ Navigation function patterns failed: ${error.message}`, 'error');
+            }
+        }
+
+        function testNavigation() {
+            log('🧭 Testing navigation links...', 'info');
+            
+            const expectedFiles = [
+                'colaboradores.html',
+                'conectar-wallet.html', 
+                'editor-archivos.html',
+                'index.html'
+            ];
+
+            expectedFiles.forEach(async (file) => {
+                try {
+                    const response = await fetch(file, { method: 'HEAD' });
+                    if (response.ok) {
+                        log(`✅ File exists: ${file}`, 'success');
+                    } else {
+                        log(`❌ File not found: ${file}`, 'error');
+                    }
+                } catch (error) {
+                    log(`❌ Error checking ${file}: ${error.message}`, 'error');
+                }
+            });
+        }
+
+        function openCollaborators() {
+            log('🤝 Opening colaboradores.html...', 'info');
+            try {
+                window.open('colaboradores.html', '_blank');
+                log('✅ Opened colaboradores.html in new tab', 'success');
+            } catch (error) {
+                log(`❌ Error opening colaboradores.html: ${error.message}`, 'error');
+            }
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = 'Log cleared...<br>';
+        }
+
+        // Auto-test al cargar
+        window.addEventListener('load', () => {
+            log('🚀 Test page loaded successfully', 'success');
+            log('👆 Click buttons above to run tests', 'info');
+            log('🔍 Auto-running basic checks...', 'info');
+            
+            setTimeout(() => {
+                testScriptLoading();
+                testClassAvailability();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

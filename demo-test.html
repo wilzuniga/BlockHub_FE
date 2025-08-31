@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlockHub - Demo de Creación de Repositorios</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #000;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #00ff00;
+        }
+        .step {
+            margin: 20px 0;
+            padding: 15px;
+            background: #0a0a0a;
+            border-left: 4px solid #00ff00;
+        }
+        .code {
+            background: #1a1a1a;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 10px 0;
+            border: 1px solid #333;
+        }
+        .success {
+            color: #00ff00;
+            font-weight: bold;
+        }
+        .warning {
+            color: #ffaa00;
+            font-weight: bold;
+        }
+        .error {
+            color: #ff0000;
+            font-weight: bold;
+        }
+        button {
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-weight: bold;
+            margin: 5px;
+        }
+        button:hover {
+            background: #00aa00;
+        }
+        .demo-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #0a0a0a;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 BlockHub - Demo de Creación de Repositorios</h1>
+        <p>Esta página demuestra cómo usar la funcionalidad de creación de archivos y repositorios en BlockHub.</p>
+
+        <div class="demo-section">
+            <h2>📋 Pre-requisitos</h2>
+            <div class="step">
+                <h3>1. MetaMask Instalado</h3>
+                <p id="metamaskStatus" class="warning">Verificando MetaMask...</p>
+                <button onclick="checkMetaMask()">🔍 Verificar MetaMask</button>
+            </div>
+            
+            <div class="step">
+                <h3>2. Pinata Configurado</h3>
+                <p id="pinataStatus" class="warning">Verificando Pinata...</p>
+                <button onclick="checkPinata()">🔍 Verificar Pinata</button>
+            </div>
+            
+            <div class="step">
+                <h3>3. Web3 Service Cargado</h3>
+                <p id="web3Status" class="warning">Verificando Web3 Service...</p>
+                <button onclick="checkWeb3Service()">🔍 Verificar Web3 Service</button>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>🔧 Demo Paso a Paso</h2>
+            
+            <div class="step">
+                <h3>Paso 1: Crear Archivo de Ejemplo</h3>
+                <p>Vamos a crear un archivo de ejemplo para demostrar el flujo completo.</p>
+                <button onclick="createSampleFile()">📄 Crear Archivo de Ejemplo</button>
+                <div id="fileOutput" class="code" style="display: none;"></div>
+            </div>
+            
+            <div class="step">
+                <h3>Paso 2: Guardar en IPFS</h3>
+                <p>Subir el archivo a IPFS usando Pinata.</p>
+                <button onclick="uploadToIPFS()" disabled id="uploadBtn">💾 Subir a IPFS</button>
+                <div id="ipfsOutput" class="code" style="display: none;"></div>
+            </div>
+            
+            <div class="step">
+                <h3>Paso 3: Conectar Web3</h3>
+                <p>Conectar con MetaMask para interactuar con contratos.</p>
+                <button onclick="connectWeb3()" id="connectBtn">🦊 Conectar MetaMask</button>
+                <div id="web3Output" class="code" style="display: none;"></div>
+            </div>
+            
+            <div class="step">
+                <h3>Paso 4: Crear Repositorio</h3>
+                <p>Crear repositorio en blockchain usando el hash IPFS.</p>
+                <button onclick="createRepository()" disabled id="repoBtn">🚀 Crear Repositorio</button>
+                <div id="repoOutput" class="code" style="display: none;"></div>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>📊 Estado Actual</h2>
+            <div class="code">
+                <div id="currentState">
+                    📁 Archivo: No creado<br>
+                    🔗 IPFS Hash: No disponible<br>
+                    🦊 Web3: No conectado<br>
+                    📄 Repositorio: No creado
+                </div>
+            </div>
+            <button onclick="updateStatus()">🔄 Actualizar Estado</button>
+        </div>
+
+        <div class="demo-section">
+            <h2>🔍 Información Técnica</h2>
+            <div class="step">
+                <h3>Variables Globales Disponibles</h3>
+                <div class="code">
+// Hash del archivo actual en IPFS
+window.BLOCKHUB_CURRENT_FILE_HASH
+
+// Información del último repositorio creado  
+window.BLOCKHUB_LAST_REPOSITORY
+
+// Instancia del servicio Web3
+window.blockHubWeb3
+
+// Servicio de Pinata
+window.pinataService
+                </div>
+                <button onclick="showGlobalVars()">📋 Mostrar Variables</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include necessary scripts -->
+    <script src="pinata-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <script src="web3-contract-integration.js"></script>
+    <script src="blockhub-remix-style.js"></script>
+
+    <script>
+        // Variables del demo
+        let demoFileName = 'demo-contract.sol';
+        let demoContent = '';
+        let currentHash = null;
+        let web3Connected = false;
+
+        // Verificaciones iniciales
+        function checkMetaMask() {
+            const status = document.getElementById('metamaskStatus');
+            if (typeof window.ethereum !== 'undefined') {
+                status.innerHTML = '<span class="success">✅ MetaMask detectado</span>';
+                return true;
+            } else {
+                status.innerHTML = '<span class="error">❌ MetaMask no instalado</span>';
+                return false;
+            }
+        }
+
+        function checkPinata() {
+            const status = document.getElementById('pinataStatus');
+            if (window.pinataService && window.pinataService.isConfigured) {
+                status.innerHTML = '<span class="success">✅ Pinata configurado correctamente</span>';
+                return true;
+            } else {
+                status.innerHTML = '<span class="warning">⚠️ Pinata no configurado (usará modo local)</span>';
+                return false;
+            }
+        }
+
+        function checkWeb3Service() {
+            const status = document.getElementById('web3Status');
+            if (window.blockHubWeb3) {
+                status.innerHTML = '<span class="success">✅ Web3 Service cargado</span>';
+                return true;
+            } else {
+                status.innerHTML = '<span class="error">❌ Web3 Service no disponible</span>';
+                return false;
+            }
+        }
+
+        // Funciones del demo
+        function createSampleFile() {
+            demoContent = `// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+/**
+ * @title DemoContract
+ * @dev Contrato de demostración para BlockHub
+ * Creado en: ${new Date().toISOString()}
+ */
+contract DemoContract {
+    string public message;
+    address public owner;
+    
+    constructor(string memory _message) {
+        message = _message;
+        owner = msg.sender;
+    }
+    
+    function updateMessage(string memory _newMessage) public {
+        require(msg.sender == owner, "Solo el propietario puede actualizar");
+        message = _newMessage;
+    }
+    
+    function getMessage() public view returns (string memory) {
+        return message;
+    }
+}`;
+
+            const output = document.getElementById('fileOutput');
+            output.style.display = 'block';
+            output.innerHTML = `<strong>Archivo creado:</strong> ${demoFileName}<br><br>${demoContent.replace(/\n/g, '<br>')}`;
+            
+            document.getElementById('uploadBtn').disabled = false;
+            updateStatus();
+        }
+
+        async function uploadToIPFS() {
+            if (!demoContent) {
+                alert('Primero crea un archivo de ejemplo');
+                return;
+            }
+
+            const output = document.getElementById('ipfsOutput');
+            output.style.display = 'block';
+            output.innerHTML = '📤 Subiendo archivo a IPFS...';
+
+            try {
+                // Usar el servicio de Pinata
+                let hash;
+                if (window.pinataService && window.pinataService.isConfigured) {
+                    const result = await window.pinataService.uploadFile(demoContent, demoFileName);
+                    hash = result.hash;
+                } else {
+                    // Modo simulación
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    hash = 'Qm' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+                    
+                    // Guardar en localStorage para simulación
+                    localStorage.setItem(`blockhub_file_${hash}`, JSON.stringify({
+                        content: demoContent,
+                        fileName: demoFileName,
+                        timestamp: Date.now()
+                    }));
+                }
+
+                currentHash = hash;
+                window.BLOCKHUB_CURRENT_FILE_HASH = hash;
+
+                output.innerHTML = `<span class="success">✅ Archivo subido exitosamente</span><br>
+Hash IPFS: ${hash}<br>
+Archivo: ${demoFileName}<br>
+Tamaño: ${demoContent.length} bytes`;
+
+                document.getElementById('connectBtn').disabled = false;
+                updateStatus();
+
+            } catch (error) {
+                output.innerHTML = `<span class="error">❌ Error: ${error.message}</span>`;
+            }
+        }
+
+        async function connectWeb3() {
+            const output = document.getElementById('web3Output');
+            output.style.display = 'block';
+            output.innerHTML = '🔄 Conectando con MetaMask...';
+
+            try {
+                await window.blockHubWeb3.initializeWeb3();
+                web3Connected = true;
+
+                const accountInfo = window.blockHubWeb3.getAccountInfo();
+                output.innerHTML = `<span class="success">✅ Web3 conectado exitosamente</span><br>
+Cuenta: ${accountInfo.account}<br>
+Red: Detectada automáticamente<br>
+Contratos: Cargados`;
+
+                document.getElementById('repoBtn').disabled = false;
+                updateStatus();
+
+            } catch (error) {
+                output.innerHTML = `<span class="error">❌ Error: ${error.message}</span>`;
+            }
+        }
+
+        async function createRepository() {
+            if (!currentHash) {
+                alert('Primero sube el archivo a IPFS');
+                return;
+            }
+
+            if (!web3Connected) {
+                alert('Primero conecta MetaMask');
+                return;
+            }
+
+            const output = document.getElementById('repoOutput');
+            output.style.display = 'block';
+            output.innerHTML = '🚀 Creando repositorio en blockchain...';
+
+            try {
+                const repoName = demoFileName.replace(/\.[^/.]+$/, ""); // Remover extensión
+                
+                // Nota: Esto fallará hasta que se actualicen las direcciones de contrato
+                const result = await window.blockHubWeb3.createRepository(repoName, currentHash);
+                
+                window.BLOCKHUB_LAST_REPOSITORY = result;
+
+                output.innerHTML = `<span class="success">✅ Repositorio creado exitosamente</span><br>
+Nombre: ${repoName}<br>
+Token ID: ${result.tokenId}<br>
+Hash TX: ${result.transactionHash}<br>
+IPFS CID: ${currentHash}`;
+
+                updateStatus();
+
+            } catch (error) {
+                if (error.message.includes('0x0000000000000000000000000000000000000000')) {
+                    output.innerHTML = `<span class="warning">⚠️ Contratos no desplegados</span><br>
+Las direcciones de contrato están en modo placeholder.<br>
+Actualiza las direcciones en web3-contract-integration.js<br>
+Error: ${error.message}`;
+                } else {
+                    output.innerHTML = `<span class="error">❌ Error: ${error.message}</span>`;
+                }
+            }
+        }
+
+        function updateStatus() {
+            const statusDiv = document.getElementById('currentState');
+            const fileStatus = demoContent ? `✅ ${demoFileName}` : '❌ No creado';
+            const ipfsStatus = currentHash ? `✅ ${currentHash.substring(0, 10)}...` : '❌ No disponible';
+            const web3Status = web3Connected ? '✅ Conectado' : '❌ No conectado';
+            const repoStatus = window.BLOCKHUB_LAST_REPOSITORY ? '✅ Creado' : '❌ No creado';
+
+            statusDiv.innerHTML = `
+📁 Archivo: ${fileStatus}<br>
+🔗 IPFS Hash: ${ipfsStatus}<br>
+🦊 Web3: ${web3Status}<br>
+📄 Repositorio: ${repoStatus}
+            `;
+        }
+
+        function showGlobalVars() {
+            const vars = {
+                'BLOCKHUB_CURRENT_FILE_HASH': window.BLOCKHUB_CURRENT_FILE_HASH || 'undefined',
+                'BLOCKHUB_LAST_REPOSITORY': window.BLOCKHUB_LAST_REPOSITORY || 'undefined',
+                'blockHubWeb3': window.blockHubWeb3 ? 'object disponible' : 'undefined',
+                'pinataService': window.pinataService ? 'object disponible' : 'undefined'
+            };
+
+            console.log('🔍 Variables Globales de BlockHub:', vars);
+            alert('Variables mostradas en la consola. Abre DevTools para verlas.');
+        }
+
+        // Inicialización
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                checkMetaMask();
+                checkPinata();
+                checkWeb3Service();
+                updateStatus();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

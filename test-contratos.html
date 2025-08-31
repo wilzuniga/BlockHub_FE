@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Contratos - BlockHub</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #0a0a0a;
+            color: #00ff00;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #000;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #00ff00;
+        }
+        .address-card {
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .success { color: #00ff00; font-weight: bold; }
+        .error { color: #ff0000; font-weight: bold; }
+        .warning { color: #ffaa00; font-weight: bold; }
+        .info { color: #00aaff; font-weight: bold; }
+        button {
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-weight: bold;
+            margin: 5px;
+        }
+        button:hover { background: #00aa00; }
+        .code {
+            background: #1a1a1a;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #333;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Test Contratos BlockHub</h1>
+        <p>Verificación de conexión con los contratos desplegados</p>
+
+        <div class="address-card">
+            <h3>📋 Direcciones de Contratos</h3>
+            <div class="code">
+                <strong>RepoFactory:</strong> <br>
+                <strong>POAP:</strong> 0x4b74468BCC47b92ffE6BD98989afF558536Eb1Af
+            </div>
+        </div>
+
+        <div class="address-card">
+            <h3>🔧 Tests Disponibles</h3>
+            <button onclick="testInitialization()">1. 🔌 Test Inicialización</button>
+            <button onclick="testRemixStyle()">2. 🎯 Test Estilo Remix</button>
+            <button onclick="testCreateRepo()">3. 📁 Test Crear Repositorio</button>
+            <button onclick="showContractInfo()">4. 📋 Mostrar Info Contratos</button>
+        </div>
+
+        <div class="address-card">
+            <h3>📊 Resultados</h3>
+            <div id="results" class="code">
+                Esperando tests...
+            </div>
+        </div>
+
+        <div class="address-card">
+            <h3>🔍 Test Manual (Consola)</h3>
+            <div class="code">
+// 1. Inicializar estilo Remix
+await initializeRemixStyle();
+
+// 2. Verificar conexión
+checkConnection();
+
+// 3. Crear repositorio de prueba
+await createRepository("test-repo", "QmTestCID123");
+
+// 4. Ver información de cuenta
+await getAccountInfo();
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts necesarios -->
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <script src="blockhub-remix-style.js"></script>
+
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const timestamp = new Date().toLocaleTimeString();
+            const colorClass = type === 'error' ? 'error' : 
+                              type === 'success' ? 'success' : 
+                              type === 'warning' ? 'warning' : 'info';
+            
+            results.innerHTML += `<span class="${colorClass}">[${timestamp}] ${message}</span><br>`;
+            results.scrollTop = results.scrollHeight;
+        }
+
+        async function testInitialization() {
+            try {
+                log('🔄 Iniciando test de inicialización...', 'info');
+                
+                // Verificar MetaMask
+                if (typeof window.ethereum === 'undefined') {
+                    log('❌ MetaMask no detectado', 'error');
+                    return;
+                }
+                log('✅ MetaMask detectado', 'success');
+
+                // Verificar Ethers.js
+                if (typeof ethers === 'undefined') {
+                    log('❌ Ethers.js no cargado', 'error');
+                    return;
+                }
+                log('✅ Ethers.js disponible', 'success');
+
+                // Verificar funciones
+                if (typeof initializeRemixStyle === 'undefined') {
+                    log('❌ Funciones BlockHub no disponibles', 'error');
+                    return;
+                }
+                log('✅ Funciones BlockHub disponibles', 'success');
+
+                log('🎉 Test de inicialización EXITOSO', 'success');
+
+            } catch (error) {
+                log(`❌ Error en inicialización: ${error.message}`, 'error');
+            }
+        }
+
+        async function testRemixStyle() {
+            try {
+                log('🔄 Probando inicialización estilo Remix...', 'info');
+                
+                const result = await initializeRemixStyle();
+                
+                log('✅ Inicialización Remix exitosa', 'success');
+                log(`🔗 Cuenta: ${result.address.substring(0, 8)}...`, 'info');
+                
+                // Verificar contratos
+                if (window.factoryContract) {
+                    log('✅ Factory Contract cargado', 'success');
+                    log(`📍 Dirección: ${FACTORY_ADDRESS}`, 'info');
+                } else {
+                    log('❌ Factory Contract no disponible', 'error');
+                }
+
+                if (window.poapContract) {
+                    log('✅ POAP Contract cargado', 'success');
+                    log(`📍 Dirección: ${POAP_ADDRESS}`, 'info');
+                } else {
+                    log('❌ POAP Contract no disponible', 'error');
+                }
+
+            } catch (error) {
+                log(`❌ Error en test Remix: ${error.message}`, 'error');
+            }
+        }
+
+        async function testCreateRepo() {
+            try {
+                log('🔄 Probando creación de repositorio...', 'info');
+                
+                // Verificar si está inicializado
+                if (!checkConnection()) {
+                    log('⚠️ Ejecutando inicialización primero...', 'warning');
+                    await initializeRemixStyle();
+                }
+
+                // Crear repositorio de prueba
+                const testName = "test-repo-" + Date.now();
+                const testCID = "QmTestCID" + Math.random().toString(36).substring(2, 8);
+                
+                log(`📝 Creando repositorio: ${testName}`, 'info');
+                log(`🔗 CID: ${testCID}`, 'info');
+                
+                const result = await createRepository(testName, testCID);
+                
+                if (result.success) {
+                    log('🎉 ¡Repositorio creado exitosamente!', 'success');
+                    log(`🆔 Token ID: ${result.tokenId}`, 'success');
+                    log(`📄 TX: ${result.transactionHash.substring(0, 10)}...`, 'info');
+                    log(`⛽ Gas usado: ${result.gasUsed}`, 'info');
+                } else {
+                    log('❌ Creación de repositorio falló', 'error');
+                }
+
+            } catch (error) {
+                log(`❌ Error creando repositorio: ${error.message}`, 'error');
+            }
+        }
+
+        async function showContractInfo() {
+            try {
+                log('🔄 Obteniendo información de contratos...', 'info');
+                
+                if (!checkConnection()) {
+                    log('⚠️ Inicializando primero...', 'warning');
+                    await initializeRemixStyle();
+                }
+
+                const accountInfo = await getAccountInfo();
+                
+                log('📊 INFORMACIÓN DE CONEXIÓN:', 'info');
+                log(`👤 Cuenta: ${accountInfo.address}`, 'info');
+                log(`💰 Balance: ${accountInfo.balance} ETH`, 'info');
+                log(`🌐 Red: ${accountInfo.network} (${accountInfo.chainId})`, 'info');
+                log(`🏭 Factory: ${FACTORY_ADDRESS}`, 'info');
+                log(`🏆 POAP: ${POAP_ADDRESS}`, 'info');
+
+            } catch (error) {
+                log(`❌ Error obteniendo info: ${error.message}`, 'error');
+            }
+        }
+
+        // Inicialización automática
+        window.addEventListener('load', () => {
+            log('🚀 Test de contratos BlockHub iniciado', 'success');
+            log('👆 Haz clic en los botones para ejecutar tests', 'info');
+            log('🔍 También puedes usar la consola del navegador', 'info');
+        });
+    </script>
+</body>
+</html>

@@ -771,6 +771,11 @@
 				"internalType": "uint256[]",
 				"name": "status",
 				"type": "uint256[]"
+			},
+			{
+				"internalType": "string[]",
+				"name": "commitCID",
+				"type": "string[]"
 			}
 		],
 		"stateMutability": "view",
