@@ -1,21 +1,16 @@
-// Configuración de Pinata para BlockHub
-// Instrucciones para configurar Pinata:
 
-/*
-1. Ve a https://pinata.cloud y crea una cuenta
-2. Genera un JWT token en el dashboard
-3. Reemplaza 'TU_JWT_TOKEN_AQUI' con tu token real
-4. Opcional: Configura tu gateway personalizado
-*/
 
 const PINATA_CONFIG = {
-    // 🔑 Reemplaza con tu JWT token de Pinata
     jwt: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiJiN2M2MDgxOS00NWE5LTRhNTYtOTA0NC0wMmY4OWY5ZTY1MjMiLCJlbWFpbCI6IndpbG1lcnp1bmlnYS5hbnRAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBpbl9wb2xpY3kiOnsicmVnaW9ucyI6W3siZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiRlJBMSJ9LHsiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiTllDMSJ9XSwidmVyc2lvbiI6MX0sIm1mYV9lbmFibGVkIjpmYWxzZSwic3RhdHVzIjoiQUNUSVZFIn0sImF1dGhlbnRpY2F0aW9uVHlwZSI6InNjb3BlZEtleSIsInNjb3BlZEtleUtleSI6ImQxNjRkMTg3NTRiNWRkNWZiNzU1Iiwic2NvcGVkS2V5U2VjcmV0IjoiNGIzNjNjNGVlZDEzYjNhZTM1M2E4MjU0MmJjMTkyOWQ3ZWM4ZDUwOTliOTkwOGRhMzNmOWNlMDY1OGIyYjE2MyIsImV4cCI6MTc4ODA3MzYxNX0.oa_7CC5q7rE1h4-9ne5Mk3v7UAuDVcYDAmcU9mO9C1I',
     
-    // 🌐 Gateway de Pinata (puedes usar el público o tu gateway personalizado)
-    gateway: 'https://gateway.pinata.cloud/ipfs/',
+    gateway: 'https://ipfs.io/ipfs/',
     
-    // 📡 API endpoints de Pinata
+    fallbackGateways: [
+        'https://cloudflare-ipfs.com/ipfs/',
+        'https://dweb.link/ipfs/',
+        'https://gateway.pinata.cloud/ipfs/'
+    ],
+    
     api: {
         base: 'https://api.pinata.cloud',
         pinFile: 'https://api.pinata.cloud/pinning/pinFileToIPFS',
@@ -25,7 +20,6 @@ const PINATA_CONFIG = {
     }
 };
 
-// 📝 Funciones de utilidad para Pinata
 class PinataService {
     constructor(config) {
         this.config = config;
@@ -46,15 +40,6 @@ class PinataService {
         try {
             const formData = new FormData();
             formData.append('file', new Blob([content], { type: 'text/plain' }), fileName);
-            
-            // Metadatos opcionales
-            if (options.name || options.description) {
-                const metadata = JSON.stringify({
-                    name: options.name || fileName,
-                    description: options.description || `Archivo subido desde BlockHub: ${fileName}`
-                });
-                formData.append('pinataMetadata', metadata);
-            }
 
             const response = await fetch(this.config.api.pinFile, {
                 method: 'POST',
@@ -87,11 +72,7 @@ class PinataService {
         
         try {
             const data = {
-                pinataContent: jsonData,
-                pinataMetadata: {
-                    name: options.name || 'BlockHub JSON',
-                    description: options.description || 'JSON data from BlockHub'
-                }
+                pinataContent: jsonData
             };
 
             const response = await fetch(this.config.api.pinJson, {
@@ -120,37 +101,83 @@ class PinataService {
         }
     }
 
-    // Cargar archivo desde IPFS
+    // Cargar archivo desde IPFS con fallbacks
     async loadFile(hash) {
-        try {
-            const response = await fetch(`${this.config.gateway}${hash}`);
-            
-            if (!response.ok) {
-                throw new Error(`Archivo no encontrado: ${response.statusText}`);
-            }
+        // Lista de gateways a intentar (principal + fallbacks)
+        const gateways = [this.config.gateway, ...this.config.fallbackGateways];
+        
+        for (let i = 0; i < gateways.length; i++) {
+            const gateway = gateways[i];
+            try {
+                console.log(`🔄 Intentando cargar desde: ${gateway}${hash}`);
+                
+                const response = await fetch(`${gateway}${hash}`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'text/plain,*/*'
+                    },
+                    // Timeout de 10 segundos
+                    signal: AbortSignal.timeout(10000)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
 
-            const content = await response.text();
-            return content;
-        } catch (error) {
-            console.error('Error loading from IPFS:', error);
-            throw error;
+                const content = await response.text();
+                console.log(`✅ Archivo cargado exitosamente desde: ${gateway}`);
+                return content;
+                
+            } catch (error) {
+                console.warn(`❌ Error con gateway ${gateway}:`, error.message);
+                
+                // Si es el último gateway, lanzar el error
+                if (i === gateways.length - 1) {
+                    console.error('🔥 Todos los gateways fallaron');
+                    throw new Error(`No se pudo cargar el archivo desde ningún gateway. Último error: ${error.message}`);
+                }
+                
+                // Continuar con el siguiente gateway
+                continue;
+            }
         }
     }
 
-    // Cargar JSON desde IPFS
+    // Cargar JSON desde IPFS con fallbacks
     async loadJSON(hash) {
-        try {
-            const response = await fetch(`${this.config.gateway}${hash}`);
-            
-            if (!response.ok) {
-                throw new Error(`JSON no encontrado: ${response.statusText}`);
-            }
+        const gateways = [this.config.gateway, ...this.config.fallbackGateways];
+        
+        for (let i = 0; i < gateways.length; i++) {
+            const gateway = gateways[i];
+            try {
+                console.log(`🔄 Intentando cargar JSON desde: ${gateway}${hash}`);
+                
+                const response = await fetch(`${gateway}${hash}`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json,*/*'
+                    },
+                    signal: AbortSignal.timeout(10000)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
 
-            const json = await response.json();
-            return json;
-        } catch (error) {
-            console.error('Error loading JSON from IPFS:', error);
-            throw error;
+                const json = await response.json();
+                console.log(`✅ JSON cargado exitosamente desde: ${gateway}`);
+                return json;
+                
+            } catch (error) {
+                console.warn(`❌ Error con gateway ${gateway}:`, error.message);
+                
+                if (i === gateways.length - 1) {
+                    console.error('🔥 Todos los gateways fallaron para JSON');
+                    throw new Error(`No se pudo cargar el JSON desde ningún gateway. Último error: ${error.message}`);
+                }
+                
+                continue;
+            }
         }
     }
 

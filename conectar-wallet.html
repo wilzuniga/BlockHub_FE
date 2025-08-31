@@ -3,29 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Conectar Wallet - BlockHub</title>
+    <title>Editor de Archivos - BlockHub</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
-    
-    <!-- Web3 Libraries -->
-    <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.1/dist/ethers.umd.min.js"></script>
     
     <style>
         :root {
             --primary-color: #013EFB;
             --secondary-color: #90F209;
             --accent-color: #90F209;
-            --dark-navy: #01112B;
-            --deep-black: #000000;
-            --almost-black: #0a0a0a;
-            --dark-charcoal: #1a1a1a;
-            --light-gray: #EBEBEB;
-            --glass-bg: rgba(235, 235, 235, 0.1);
-            --glass-border: rgba(235, 235, 235, 0.2);
-            --dark-glass: rgba(1, 17, 43, 0.3);
-            --text-light: rgba(235, 235, 235, 0.95);
-            --text-muted: rgba(235, 235, 235, 0.75);
+            --dark-navy: #2d3748;
+            --light-gray: #f8f9fa;
+            --glass-bg: rgba(255, 255, 255, 0.25);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --dark-glass: rgba(255, 255, 255, 0.15);
+            --text-light: #2d3748;
+            --text-muted: #4a5568;
+            --code-bg: rgba(255, 255, 255, 0.8);
+            --sidebar-bg: rgba(255, 255, 255, 0.2);
+            --editor-bg: rgba(255, 255, 255, 0.9);
         }
 
         * {
@@ -36,10 +33,9 @@
 
         body {
             font-family: 'Roboto Mono', monospace;
-            background: linear-gradient(135deg, var(--deep-black) 0%, var(--almost-black) 25%, var(--dark-charcoal) 40%, var(--dark-navy) 70%, var(--primary-color) 100%);
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 50%, #dee2e6 100%);
             min-height: 100vh;
-            overflow-x: hidden;
-            color: var(--text-light);
+            color: #2d3748;
         }
 
         /* Animated Background */
@@ -50,9 +46,9 @@
             width: 100%;
             height: 100%;
             z-index: -1;
-            background: linear-gradient(135deg, var(--deep-black) 0%, var(--almost-black) 20%, var(--dark-charcoal) 35%, var(--dark-navy) 55%, var(--primary-color) 75%, var(--secondary-color) 100%);
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 30%, #dee2e6 70%, #ced4da 100%);
             background-size: 400% 400%;
-            animation: gradientShift 15s ease infinite;
+            animation: gradientShift 20s ease infinite;
         }
 
         @keyframes gradientShift {
@@ -69,118 +65,264 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
 
+        /* Layout */
+        .container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+        }
+
         /* Header */
         .header {
-            padding: 2rem;
-            text-align: center;
-        }
-
-        .header-logo {
-            margin-bottom: 1.5rem;
-        }
-
-        .main-logo {
-            height: 80px;
-            width: auto;
-            max-width: 200px;
-            object-fit: contain;
-            transition: transform 0.3s ease, filter 0.3s ease;
-            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
-        }
-
-        .main-logo:hover {
-            transform: scale(1.05);
-            filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4)) brightness(1.1);
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
         }
 
         .header h1 {
-            font-size: 3rem;
+            font-size: 2rem;
+            color: var(--secondary-color);
             font-weight: 700;
-            margin-bottom: 1rem;
-            background: linear-gradient(45deg, var(--light-gray), var(--secondary-color));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            background: rgba(144, 242, 9, 0.15);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(144, 242, 9, 0.3);
         }
 
-        .header p {
-            font-size: 1.2rem;
-            color: var(--text-muted);
-            max-width: 600px;
-            margin: 0 auto;
-            line-height: 1.6;
+        .back-link {
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
         }
 
-        /* Main Container */
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 2rem;
+        .back-link:hover {
+            color: var(--secondary-color);
+            background: rgba(144, 242, 9, 0.15);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            border: 1px solid rgba(144, 242, 9, 0.3);
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+            transition: all 0.3s ease;
         }
 
-        /* Wallet Connection Card */
-        .wallet-card {
-            border-radius: 20px;
-            padding: 3rem;
-            margin: 2rem 0;
-            text-align: center;
+        /* Main Editor Area */
+        .editor-container {
+            display: flex;
+            flex: 1;
+            min-height: 0;
         }
 
-        /* Connection Status */
-        .connection-status {
+        /* Sidebar */
+        .sidebar {
+            width: 320px;
+            background: var(--sidebar-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid var(--glass-border);
+            padding: 1.5rem;
+            overflow-y: auto;
+            box-shadow: 4px 0 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .file-section {
             margin-bottom: 2rem;
         }
 
-        .status-disconnected {
-            color: #ff6b6b;
-        }
-
-        .status-connected {
+        .file-section h3 {
             color: var(--secondary-color);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            background: rgba(144, 242, 9, 0.12);
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            border-left: 3px solid var(--secondary-color);
+            font-weight: 600;
         }
 
-        /* Wallet Address Display */
-        .wallet-address {
-            background: var(--dark-glass);
-            border-radius: 15px;
-            padding: 1rem 2rem;
-            margin: 1rem 0;
-            font-family: 'Roboto Mono', monospace;
+        .file-input-group {
+            margin-bottom: 1rem;
+        }
+
+        .file-input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-light);
             font-weight: 500;
+        }
+
+        .file-input-group input, .file-input-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1.5px solid rgba(0, 0, 0, 0.15);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--text-light);
+            font-family: 'Roboto Mono', monospace;
+            transition: all 0.3s ease;
+        }
+
+        .file-input-group input:focus, .file-input-group select:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 2px rgba(144, 242, 9, 0.2);
+            background: rgba(255, 255, 255, 1);
+        }
+
+        /* File List */
+        .file-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .file-item {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1.5px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .file-item:hover {
+            border-color: var(--secondary-color);
+            background: rgba(144, 242, 9, 0.15);
+            transform: translateX(2px);
+        }
+
+        .file-item.active {
+            border-color: var(--secondary-color);
+            background: rgba(144, 242, 9, 0.25);
+            box-shadow: 0 2px 8px rgba(144, 242, 9, 0.3);
+        }
+
+        .file-name {
+            font-weight: 600;
+            color: var(--text-light);
+            margin-bottom: 0.25rem;
+        }
+
+        .file-hash {
+            font-size: 0.8rem;
+            color: var(--text-muted);
             word-break: break-all;
+        }
+
+        /* Main Editor */
+        .editor-area {
+            flex: 1;
+            background: var(--editor-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            margin: 1rem;
+            border-radius: 15px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+        }
+
+        .editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .current-file {
+            color: var(--secondary-color);
+            font-weight: 600;
+            background: rgba(144, 242, 9, 0.15);
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            border: 1px solid rgba(144, 242, 9, 0.3);
+            font-size: 1.1rem;
+        }
+
+        .editor-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* Code Editor */
+        .code-editor {
+            flex: 1;
+            min-height: 0;
+            position: relative;
+        }
+
+        .code-textarea {
+            width: 100%;
+            height: 100%;
+            min-height: 500px;
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            color: #2d3748;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            resize: none;
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+        }
+
+        .code-textarea:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(144, 242, 9, 0.2), inset 0 2px 4px rgba(0, 0, 0, 0.06);
+            background: rgba(255, 255, 255, 1);
         }
 
         /* Buttons */
         .btn {
-            padding: 16px 32px;
-            border-radius: 50px;
+            padding: 12px 24px;
+            border-radius: 8px;
             border: none;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
             font-family: 'Roboto Mono', monospace;
-            margin: 0.5rem;
+            font-size: 14px;
         }
 
         .btn-primary {
             background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
             color: var(--light-gray);
-            box-shadow: 0 10px 30px rgba(1, 62, 251, 0.4);
+            box-shadow: 0 4px 15px rgba(1, 62, 251, 0.3);
         }
 
         .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 40px rgba(1, 62, 251, 0.5), 0 0 30px rgba(144, 242, 9, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(1, 62, 251, 0.4);
         }
 
         .btn-secondary {
-            background: linear-gradient(45deg, #6c757d, #495057);
-            color: white;
+            background: var(--code-bg);
+            color: var(--text-light);
+            border: 1px solid var(--glass-border);
         }
 
-        .btn-danger {
-            background: linear-gradient(45deg, #dc3545, #c82333);
+        .btn-secondary:hover {
+            background: rgba(144, 242, 9, 0.1);
+            border-color: var(--secondary-color);
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #28a745, var(--secondary-color));
             color: white;
         }
 
@@ -190,119 +332,103 @@
             transform: none !important;
         }
 
-        /* Data Display */
-        .data-section {
-            margin-top: 3rem;
-        }
-
-        .data-grid {
-            display: grid;
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-
-        .data-item {
-            background: var(--dark-glass);
-            border-radius: 15px;
-            padding: 1.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .data-label {
-            font-weight: 600;
-            color: var(--text-light);
-        }
-
-        .data-value {
-            color: var(--secondary-color);
+        /* Status Messages */
+        .status-message {
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
             font-weight: 500;
+        }
+
+        .status-success {
+            background: rgba(40, 167, 69, 0.25);
+            border: 2px solid rgba(40, 167, 69, 0.5);
+            color: #28a745;
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+        }
+
+        .status-error {
+            background: rgba(220, 53, 69, 0.2);
+            border: 1px solid rgba(220, 53, 69, 0.4);
+            color: #dc3545;
+        }
+
+        .status-info {
+            background: rgba(144, 242, 9, 0.25);
+            border: 2px solid rgba(144, 242, 9, 0.5);
+            color: var(--secondary-color);
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
         }
 
         /* Loading Spinner */
         .loading {
             display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(144, 242, 9, 0.3);
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(144, 242, 9, 0.3);
             border-radius: 50%;
             border-top-color: var(--secondary-color);
             animation: spin 1s ease-in-out infinite;
+            margin-right: 0.5rem;
         }
 
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
 
-        /* Back Link */
-        .back-link {
-            position: fixed;
-            top: 2rem;
-            left: 2rem;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            z-index: 100;
-            padding: 0.5rem;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .back-link:hover {
-            background: rgba(144, 242, 9, 0.2);
-            border-color: var(--secondary-color);
-            transform: scale(1.05) translateY(-2px);
-            box-shadow: 0 8px 25px rgba(144, 242, 9, 0.3);
-        }
-
-        .back-logo {
-            height: 50px;
-            width: auto;
-            max-width: 120px;
-            object-fit: contain;
-            transition: all 0.3s ease;
-            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
-        }
-
-        .back-link:hover .back-logo {
-            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4)) brightness(1.1);
-        }
-
-        /* Error Messages */
-        .error-message {
-            background: rgba(220, 53, 69, 0.2);
-            border: 1px solid rgba(220, 53, 69, 0.4);
-            color: #ff6b6b;
-            padding: 1rem;
-            border-radius: 10px;
-            margin: 1rem 0;
-        }
-
         /* Responsive */
+        @media (max-width: 1024px) {
+            .editor-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                max-height: 300px;
+                border-right: none;
+                border-bottom: 1px solid var(--glass-border);
+            }
+
+            .editor-area {
+                margin: 0.5rem;
+            }
+        }
+
         @media (max-width: 768px) {
+            .header {
+            padding: 1rem;
+                flex-direction: column;
+                gap: 1rem;
+        }
+
             .header h1 {
-                font-size: 2rem;
+                font-size: 1.5rem;
             }
             
-            .wallet-card {
-                padding: 2rem 1rem;
-            }
-            
-            .container {
+            .sidebar {
                 padding: 1rem;
             }
-
-            .back-link {
-                top: 1rem;
-                left: 1rem;
-                padding: 0.3rem;
+            
+            .editor-area {
+                margin: 0.25rem;
+                padding: 1rem;
+            }
+            
+            .editor-actions {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .btn {
+                width: 100%;
             }
 
-            .back-logo {
-                height: 40px;
-                max-width: 100px;
+            .code-textarea {
+                min-height: 400px;
+                padding: 1rem;
+                font-size: 13px;
             }
         }
     </style>
@@ -310,232 +436,407 @@
 <body>
     <div class="bg-animation"></div>
     
-    <a href="index.html" class="back-link">
-        <img src="src/assets/BLANCO.png" alt="BlockHub Logo" class="back-logo">
-    </a>
-    
     <div class="container">
         <div class="header">
-            
-            <h1>Conectar Wallet</h1>
-            <p>Conecta tu wallet de Ethereum para acceder a la plataforma descentralizada de BlockHub</p>
+            <h1>📝 Editor de Archivos IPFS</h1>
+            <a href="conectar-wallet.html" class="back-link">← Volver a Wallet</a>
         </div>
 
-        <div class="wallet-card glass">
-            <div class="connection-status">
-                <h2 id="connectionStatus" class="status-disconnected">Wallet Desconectada</h2>
-                <div id="walletAddress" class="wallet-address" style="display: none;"></div>
+        <div class="editor-container">
+            <!-- Sidebar -->
+            <div class="sidebar glass">
+                <div class="file-section">
+                    <h3>📁 Nuevo Archivo</h3>
+                    
+                    <div class="file-input-group">
+                        <label for="fileName">Nombre del archivo:</label>
+                        <input type="text" id="fileName" placeholder="mi-archivo.js" />
+        </div>
+
+                    <div class="file-input-group">
+                        <label for="fileType">Tipo de archivo:</label>
+                        <select id="fileType">
+                            <option value="javascript">JavaScript (.js)</option>
+                            <option value="typescript">TypeScript (.ts)</option>
+                            <option value="solidity">Solidity (.sol)</option>
+                            <option value="json">JSON (.json)</option>
+                            <option value="markdown">Markdown (.md)</option>
+                            <option value="text">Texto (.txt)</option>
+                            <option value="html">HTML (.html)</option>
+                            <option value="css">CSS (.css)</option>
+                        </select>
             </div>
 
-            <div id="disconnectedState">
-                <p style="margin-bottom: 2rem; color: var(--text-muted);">
-                    Para comenzar, conecta tu wallet MetaMask para interactuar con la blockchain de Ethereum.
-                </p>
-                <button id="connectBtn" class="btn btn-primary">
-                    Conectar MetaMask
+                    <button id="createFileBtn" class="btn btn-primary" style="width: 100%;">
+                        Crear Archivo
                 </button>
             </div>
 
-            <div id="connectedState" style="display: none;">
-                <div class="data-section">
-                    <h3>Información de la Wallet</h3>
-                    <div class="data-grid">
-                        <div class="data-item">
-                            <span class="data-label">Red:</span>
-                            <span id="networkName" class="data-value">-</span>
-                        </div>
-                        <div class="data-item">
-                            <span class="data-label">Chain ID:</span>
-                            <span id="chainId" class="data-value">-</span>
-                        </div>
-                        <div class="data-item">
-                            <span class="data-label">Balance ETH:</span>
-                            <span id="ethBalance" class="data-value">-</span>
+                <div class="file-section">
+                    <h3>📚 Archivos Guardados</h3>
+                    <div id="fileList" class="file-list">
+                        <div style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                            No hay archivos guardados
                         </div>
                     </div>
                 </div>
 
-                <div style="margin-top: 2rem;">
-                    <a href="editor-archivos.html" class="btn btn-primary" style="text-decoration: none; display: inline-block; margin-right: 0.5rem;">
-                        📝 Editor de Archivos
-                    </a>
-                    <button id="refreshBtn" class="btn btn-secondary">
-                        Actualizar Datos
-                    </button>
-                    <button id="disconnectBtn" class="btn btn-danger">
-                        Desconectar
+                <div class="file-section">
+                    <h3>🔗 Cargar por Hash</h3>
+                    <div class="file-input-group">
+                        <label for="ipfsHash">Hash IPFS:</label>
+                        <input type="text" id="ipfsHash" placeholder="Qm..." />
+                    </div>
+                    <button id="loadFileBtn" class="btn btn-secondary" style="width: 100%;">
+                        Cargar Archivo
                     </button>
                 </div>
             </div>
 
-            <div id="errorMessage" class="error-message" style="display: none;"></div>
+            <!-- Main Editor -->
+            <div class="editor-area glass">
+                <div class="editor-header">
+                    <div class="current-file" id="currentFileName">Nuevo archivo</div>
+                    <div class="editor-actions">
+                        <button id="saveFileBtn" class="btn btn-success" disabled>
+                            💾 Guardar en IPFS
+                    </button>
+                        <button id="newFileBtn" class="btn btn-secondary">
+                            📄 Nuevo
+                    </button>
+                </div>
+            </div>
+
+                <div id="statusMessage" style="display: none;"></div>
+
+                <div class="code-editor">
+                    <textarea 
+                        id="codeEditor" 
+                        class="code-textarea" 
+                        placeholder="// Escribe tu código aquí...
+// Este archivo se guardará en IPFS usando Pinata
+console.log('¡Hola BlockHub!');"
+                    ></textarea>
+                </div>
+            </div>
         </div>
     </div>
 
+    <!-- Pinata Configuration -->
+    <script src="pinata-config.js"></script>
+
     <script>
-        // Global variables
-        let provider = null;
-        let signer = null;
-        let userAccount = null;
 
-        // Network names mapping
-        const networkNames = {
-            1: 'Ethereum Mainnet',
-            11155111: 'Sepolia Testnet',
-            5: 'Goerli Testnet',
-            137: 'Polygon Mainnet',
-            80001: 'Polygon Mumbai'
-        };
+        // Variables globales
+        let currentFileHash = null;
+        let currentFileName = 'nuevo-archivo.js';
+        let savedFiles = JSON.parse(localStorage.getItem('blockhub_files') || '[]');
 
-        // DOM elements
-        const connectBtn = document.getElementById('connectBtn');
-        const disconnectBtn = document.getElementById('disconnectBtn');
-        const refreshBtn = document.getElementById('refreshBtn');
-        const connectionStatus = document.getElementById('connectionStatus');
-        const walletAddress = document.getElementById('walletAddress');
-        const disconnectedState = document.getElementById('disconnectedState');
-        const connectedState = document.getElementById('connectedState');
-        const errorMessage = document.getElementById('errorMessage');
-        const networkName = document.getElementById('networkName');
-        const chainId = document.getElementById('chainId');
-        const ethBalance = document.getElementById('ethBalance');
+        // Variable global para almacenar el hash actual (accesible desde consola del navegador)
+        window.BLOCKHUB_CURRENT_FILE_HASH = null;
 
-        // Utility functions
-        function makeShortAddress(address) {
-            return address.slice(0, 6) + "..." + address.slice(-6);
-        }
+        // DOM Elements
+        const fileNameInput = document.getElementById('fileName');
+        const fileTypeSelect = document.getElementById('fileType');
+        const createFileBtn = document.getElementById('createFileBtn');
+        const fileList = document.getElementById('fileList');
+        const ipfsHashInput = document.getElementById('ipfsHash');
+        const loadFileBtn = document.getElementById('loadFileBtn');
+        const currentFileNameEl = document.getElementById('currentFileName');
+        const saveFileBtn = document.getElementById('saveFileBtn');
+        const newFileBtn = document.getElementById('newFileBtn');
+        const codeEditor = document.getElementById('codeEditor');
+        const statusMessage = document.getElementById('statusMessage');
 
-        function showError(message) {
-            errorMessage.textContent = message;
-            errorMessage.style.display = 'block';
-            setTimeout(() => {
-                errorMessage.style.display = 'none';
-            }, 5000);
-        }
-
-        function updateUI() {
-            if (userAccount) {
-                connectionStatus.textContent = 'Wallet Conectada';
-                connectionStatus.className = 'status-connected';
-                walletAddress.textContent = makeShortAddress(userAccount);
-                walletAddress.style.display = 'block';
-                disconnectedState.style.display = 'none';
-                connectedState.style.display = 'block';
-                loadWalletData();
-            } else {
-                connectionStatus.textContent = 'Wallet Desconectada';
-                connectionStatus.className = 'status-disconnected';
-                walletAddress.style.display = 'none';
-                disconnectedState.style.display = 'block';
-                connectedState.style.display = 'none';
+        // Utility Functions
+        function showStatus(message, type = 'info') {
+            statusMessage.textContent = message;
+            statusMessage.className = `status-message status-${type}`;
+            statusMessage.style.display = 'block';
+            
+            if (type !== 'error') {
+                setTimeout(() => {
+                    statusMessage.style.display = 'none';
+                }, 5000);
             }
         }
 
-        async function loadWalletData() {
+        function updateFileName() {
+            const name = fileNameInput.value.trim();
+            const type = fileTypeSelect.value;
+            
+            if (name) {
+                // Asegurar que tenga la extensión correcta
+                const extensions = {
+                    javascript: '.js',
+                    typescript: '.ts',
+                    solidity: '.sol',
+                    json: '.json',
+                    markdown: '.md',
+                    text: '.txt',
+                    html: '.html',
+                    css: '.css'
+                };
+                
+                const ext = extensions[type];
+                const finalName = name.endsWith(ext) ? name : name + ext;
+                currentFileName = finalName;
+                currentFileNameEl.textContent = finalName;
+                saveFileBtn.disabled = false;
+            } else {
+                currentFileName = 'nuevo-archivo.js';
+                currentFileNameEl.textContent = 'Nuevo archivo';
+                saveFileBtn.disabled = true;
+            }
+        }
+
+        function updateFileList() {
+            if (savedFiles.length === 0) {
+                fileList.innerHTML = `
+                    <div style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                        No hay archivos guardados
+                    </div>
+                `;
+                return;
+            }
+
+            fileList.innerHTML = savedFiles.map(file => `
+                <div class="file-item" onclick="loadFileFromList('${file.hash}', '${file.name}')">
+                    <div class="file-name">${file.name}</div>
+                    <div class="file-hash">${file.hash}</div>
+                </div>
+            `).join('');
+        }
+
+        function saveFileToLocalStorage(name, hash) {
+            const fileEntry = {
+                name: name,
+                hash: hash,
+                timestamp: Date.now(),
+                date: new Date().toLocaleString()
+            };
+            
+            // Evitar duplicados
+            savedFiles = savedFiles.filter(f => f.hash !== hash);
+            savedFiles.unshift(fileEntry);
+            
+            // Limitar a los últimos 20 archivos
+            if (savedFiles.length > 20) {
+                savedFiles = savedFiles.slice(0, 20);
+            }
+            
+            localStorage.setItem('blockhub_files', JSON.stringify(savedFiles));
+            updateFileList();
+        }
+
+        // Pinata Functions
+        async function uploadToPinata(content, fileName) {
             try {
-                if (!provider || !userAccount) return;
+                // Verificar si Pinata está configurado
+                if (window.pinataService && window.pinataService.isConfigured) {
+                    showStatus('📤 Subiendo archivo a Pinata IPFS...', 'info');
+                    
+                    const result = await window.pinataService.uploadFile(content, fileName, {
+                        name: `BlockHub: ${fileName}`,
+                        description: `Archivo creado en BlockHub - ${new Date().toISOString()}`
+                    });
+                    
+                    return result.hash;
+            } else {
+                    // Modo simulación cuando Pinata no está configurado
+                    showStatus('⚠️ Pinata no configurado. Usando almacenamiento local...', 'info');
+                    
+                    // Simular delay de upload
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    
+                    // Generar un hash simulado
+                    const simulatedHash = 'Qm' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+                    
+                    // Guardar en localStorage como backup
+                    localStorage.setItem(`blockhub_file_${simulatedHash}`, JSON.stringify({
+                        content: content,
+                        fileName: fileName,
+                        timestamp: Date.now()
+                    }));
+                    
+                    return simulatedHash;
+                }
+                
+            } catch (error) {
+                console.error('Error uploading to Pinata:', error);
+                throw error;
+            }
+        }
 
-                // Get network info
-                const network = await provider.getNetwork();
-                networkName.textContent = networkNames[network.chainId] || `Unknown (${network.chainId})`;
-                chainId.textContent = network.chainId.toString();
-
-                // Get ETH balance
-                const balance = await provider.getBalance(userAccount);
-                const ethValue = ethers.formatEther(balance);
-                ethBalance.textContent = parseFloat(ethValue).toFixed(4) + ' ETH';
+        async function loadFromPinata(hash) {
+            try {
+                // Intentar cargar desde Pinata si está configurado
+                if (window.pinataService && window.pinataService.isConfigured) {
+                    try {
+                        const content = await window.pinataService.loadFile(hash);
+                        return {
+                            content: content,
+                            fileName: `archivo-${hash.substring(0, 8)}.txt`
+                        };
+                    } catch (pinataError) {
+                        // Si falla Pinata, intentar localStorage como backup
+                        console.warn('Error cargando desde Pinata, intentando localStorage:', pinataError);
+                    }
+                }
+                
+                // Cargar desde localStorage (backup o modo local)
+                const localFile = localStorage.getItem(`blockhub_file_${hash}`);
+                if (localFile) {
+                    const fileData = JSON.parse(localFile);
+                    return {
+                        content: fileData.content,
+                        fileName: fileData.fileName
+                    };
+                }
+                
+                throw new Error('Archivo no encontrado en IPFS ni en almacenamiento local');
 
             } catch (error) {
-                console.error('Error loading wallet data:', error);
-                showError('Error al cargar datos de la wallet');
+                console.error('Error loading from Pinata:', error);
+                throw error;
             }
         }
 
-        async function connectWallet() {
-            try {
-                // Check if MetaMask is installed
-                if (typeof window.ethereum === 'undefined') {
-                    showError('MetaMask no está instalado. Por favor instala MetaMask para continuar.');
+        // Event Handlers
+        async function handleSaveFile() {
+            const content = codeEditor.value.trim();
+            if (!content) {
+                showStatus('El archivo está vacío', 'error');
                     return;
                 }
 
-                // Request account access
-                connectBtn.textContent = 'Conectando...';
-                connectBtn.disabled = true;
-
-                const accounts = await window.ethereum.request({
-                    method: 'eth_requestAccounts'
-                });
-
-                if (accounts.length === 0) {
-                    throw new Error('No se pudo acceder a ninguna cuenta');
-                }
-
-                // Initialize provider and signer
-                provider = new ethers.BrowserProvider(window.ethereum);
-                signer = await provider.getSigner();
-                userAccount = accounts[0];
-
-                updateUI();
-                console.log('Wallet conectada:', userAccount);
-
+            try {
+                saveFileBtn.disabled = true;
+                saveFileBtn.innerHTML = '<span class="loading"></span>Guardando...';
+                
+                const hash = await uploadToPinata(content, currentFileName);
+                
+                currentFileHash = hash;
+                window.BLOCKHUB_CURRENT_FILE_HASH = hash; // Variable accesible desde consola
+                
+                saveFileToLocalStorage(currentFileName, hash);
+                
+                showStatus(`✅ Archivo guardado exitosamente en IPFS: ${hash}`, 'success');
+                console.log('📁 Archivo guardado - Hash IPFS:', hash);
+                console.log('🔍 Accede al hash desde: window.BLOCKHUB_CURRENT_FILE_HASH');
+                
             } catch (error) {
-                console.error('Error conectando wallet:', error);
-                showError('Error al conectar la wallet: ' + error.message);
+                showStatus(`Error al guardar: ${error.message}`, 'error');
             } finally {
-                connectBtn.textContent = 'Conectar MetaMask';
-                connectBtn.disabled = false;
+                saveFileBtn.disabled = false;
+                saveFileBtn.innerHTML = '💾 Guardar en IPFS';
             }
         }
 
-        function disconnectWallet() {
-            provider = null;
-            signer = null;
-            userAccount = null;
-            updateUI();
-            console.log('Wallet desconectada');
+        async function handleLoadFile() {
+            const hash = ipfsHashInput.value.trim();
+            if (!hash) {
+                showStatus('Ingresa un hash IPFS válido', 'error');
+                return;
+            }
+
+            try {
+                loadFileBtn.disabled = true;
+                loadFileBtn.innerHTML = '<span class="loading"></span>Cargando...';
+                
+                const fileData = await loadFromPinata(hash);
+                
+                codeEditor.value = fileData.content;
+                currentFileName = fileData.fileName;
+                currentFileHash = hash;
+                window.BLOCKHUB_CURRENT_FILE_HASH = hash;
+                
+                currentFileNameEl.textContent = fileData.fileName;
+                ipfsHashInput.value = '';
+                
+                showStatus(`✅ Archivo cargado desde IPFS: ${hash}`, 'success');
+
+            } catch (error) {
+                showStatus(`Error al cargar: ${error.message}`, 'error');
+            } finally {
+                loadFileBtn.disabled = false;
+                loadFileBtn.innerHTML = 'Cargar Archivo';
+            }
         }
 
-        // Event listeners
-        connectBtn.addEventListener('click', connectWallet);
-        disconnectBtn.addEventListener('click', disconnectWallet);
-        refreshBtn.addEventListener('click', loadWalletData);
-
-        // Listen for account changes
-        if (typeof window.ethereum !== 'undefined') {
-            window.ethereum.on('accountsChanged', (accounts) => {
-                if (accounts.length === 0) {
-                    disconnectWallet();
-                } else {
-                    userAccount = accounts[0];
-                    updateUI();
-                }
-            });
-
-            window.ethereum.on('chainChanged', (chainId) => {
-                loadWalletData();
-            });
+        function handleNewFile() {
+            codeEditor.value = '';
+            currentFileName = 'nuevo-archivo.js';
+            currentFileHash = null;
+            window.BLOCKHUB_CURRENT_FILE_HASH = null;
+            currentFileNameEl.textContent = 'Nuevo archivo';
+            fileNameInput.value = '';
+            saveFileBtn.disabled = true;
         }
 
-        // Check if already connected on page load
-        window.addEventListener('load', async () => {
-            if (typeof window.ethereum !== 'undefined') {
-                try {
-                    const accounts = await window.ethereum.request({
-                        method: 'eth_accounts'
-                    });
-                    
-                    if (accounts.length > 0) {
-                        provider = new ethers.BrowserProvider(window.ethereum);
-                        signer = await provider.getSigner();
-                        userAccount = accounts[0];
-                        updateUI();
-                    }
-                } catch (error) {
-                    console.error('Error checking existing connection:', error);
+        function handleCreateFile() {
+            const name = fileNameInput.value.trim();
+            if (!name) {
+                showStatus('Ingresa un nombre para el archivo', 'error');
+                return;
+            }
+            
+            updateFileName();
+            codeEditor.focus();
+            showStatus(`Archivo "${currentFileName}" creado. ¡Comienza a escribir!`, 'success');
+        }
+
+        async function loadFileFromList(hash, name) {
+            try {
+                const fileData = await loadFromPinata(hash);
+                codeEditor.value = fileData.content;
+                currentFileName = name;
+                currentFileHash = hash;
+                window.BLOCKHUB_CURRENT_FILE_HASH = hash;
+                currentFileNameEl.textContent = name;
+                
+                // Marcar como activo
+                document.querySelectorAll('.file-item').forEach(item => item.classList.remove('active'));
+                event.currentTarget.classList.add('active');
+                
+                showStatus(`Archivo "${name}" cargado`, 'success');
+            } catch (error) {
+                showStatus(`Error al cargar archivo: ${error.message}`, 'error');
+            }
+        }
+
+        // Event Listeners
+        fileNameInput.addEventListener('input', updateFileName);
+        fileTypeSelect.addEventListener('change', updateFileName);
+        createFileBtn.addEventListener('click', handleCreateFile);
+        saveFileBtn.addEventListener('click', handleSaveFile);
+        loadFileBtn.addEventListener('click', handleLoadFile);
+        newFileBtn.addEventListener('click', handleNewFile);
+
+        // Habilitar guardado cuando hay contenido
+        codeEditor.addEventListener('input', () => {
+            if (currentFileName !== 'Nuevo archivo' && codeEditor.value.trim()) {
+                saveFileBtn.disabled = false;
+            }
+        });
+
+        // Keyboard shortcuts
+        codeEditor.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                if (!saveFileBtn.disabled) {
+                    handleSaveFile();
                 }
             }
         });
+
+        // Initialize
+        updateFileList();
+        showStatus('💡 Consejo: Usa Ctrl+S para guardar rápidamente', 'info');
+        
+        // Mostrar información en consola
+        console.log('🚀 BlockHub File Editor cargado');
+        console.log('📋 Hash del archivo actual disponible en: window.BLOCKHUB_CURRENT_FILE_HASH');
     </script>
 </body>
 </html>

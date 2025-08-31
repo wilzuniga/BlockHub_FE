@@ -519,6 +519,9 @@
                     <button id="loadFileBtn" class="btn btn-secondary" style="width: 100%;">
                         Cargar Archivo
                     </button>
+                    <button id="testConnBtn" class="btn btn-secondary" style="width: 100%; margin-top: 0.5rem; font-size: 0.8rem;">
+                        🔍 Probar Conectividad IPFS
+                    </button>
                 </div>
             </div>
 
@@ -576,6 +579,7 @@ console.log('¡Hola BlockHub!');"
         const newFileBtn = document.getElementById('newFileBtn');
         const codeEditor = document.getElementById('codeEditor');
         const statusMessage = document.getElementById('statusMessage');
+        const testConnBtn = document.getElementById('testConnBtn');
 
         // Utility Functions
         function showStatus(message, type = 'info') {
@@ -665,10 +669,7 @@ console.log('¡Hola BlockHub!');"
                 if (window.pinataService && window.pinataService.isConfigured) {
                     showStatus('📤 Subiendo archivo a Pinata IPFS...', 'info');
                     
-                    const result = await window.pinataService.uploadFile(content, fileName, {
-                        name: `BlockHub: ${fileName}`,
-                        description: `Archivo creado en BlockHub - ${new Date().toISOString()}`
-                    });
+                    const result = await window.pinataService.uploadFile(content, fileName);
                     
                     return result.hash;
                 } else {
@@ -699,35 +700,87 @@ console.log('¡Hola BlockHub!');"
 
         async function loadFromPinata(hash) {
             try {
-                // Intentar cargar desde Pinata si está configurado
+                console.log(`🔍 Intentando cargar archivo con hash: ${hash}`);
+                
+                // Intentar cargar desde IPFS usando Pinata
                 if (window.pinataService && window.pinataService.isConfigured) {
                     try {
+                        console.log('📡 Cargando desde IPFS...');
                         const content = await window.pinataService.loadFile(hash);
+                        console.log('✅ Archivo cargado exitosamente desde IPFS');
                         return {
                             content: content,
                             fileName: `archivo-${hash.substring(0, 8)}.txt`
                         };
                     } catch (pinataError) {
-                        // Si falla Pinata, intentar localStorage como backup
-                        console.warn('Error cargando desde Pinata, intentando localStorage:', pinataError);
+                        console.warn('⚠️ Error cargando desde IPFS, intentando almacenamiento local:', pinataError.message);
+                        
+                        // Mostrar error específico al usuario
+                        if (pinataError.message.includes('gateway')) {
+                            showStatus('⚠️ Problema de conectividad con IPFS. Intentando alternativas...', 'info');
+                        }
                     }
+                } else {
+                    console.log('⚠️ Pinata no configurado, usando almacenamiento local');
                 }
                 
                 // Cargar desde localStorage (backup o modo local)
+                console.log('💾 Buscando en almacenamiento local...');
                 const localFile = localStorage.getItem(`blockhub_file_${hash}`);
                 if (localFile) {
-                    const fileData = JSON.parse(localFile);
-                    return {
-                        content: fileData.content,
-                        fileName: fileData.fileName
-                    };
+                    try {
+                        const fileData = JSON.parse(localFile);
+                        console.log('✅ Archivo encontrado en almacenamiento local');
+                        return {
+                            content: fileData.content,
+                            fileName: fileData.fileName
+                        };
+                    } catch (parseError) {
+                        console.error('❌ Error parseando archivo local:', parseError);
+                        throw new Error('Archivo corrupto en almacenamiento local');
+                    }
                 }
                 
-                throw new Error('Archivo no encontrado en IPFS ni en almacenamiento local');
+                // Si llegamos aquí, el archivo no se encontró en ningún lado
+                const errorMsg = `Archivo no encontrado. Hash: ${hash.substring(0, 12)}...`;
+                console.error('❌', errorMsg);
+                throw new Error(errorMsg);
                 
             } catch (error) {
-                console.error('Error loading from Pinata:', error);
-                throw error;
+                // Si el error ya fue lanzado por nosotros, no lo envolvemos
+                if (error.message.includes('Archivo no encontrado') || 
+                    error.message.includes('Archivo corrupto')) {
+                    throw error;
+                }
+                
+                // Para otros errores, los envolvemos con más contexto
+                console.error('🔥 Error general cargando archivo:', error);
+                throw new Error(`Error cargando archivo: ${error.message}`);
+            }
+        }
+
+        // Función para probar conectividad IPFS
+        async function testIPFSConnectivity() {
+            const testHash = 'QmTz3oc4gdpRMKP2sdGUPZBuBXZJUhKv4L5zB4m4j7N7e2'; // Hash público de prueba
+            
+            try {
+                testConnBtn.disabled = true;
+                testConnBtn.innerHTML = '🔄 Probando...';
+                showStatus('🔍 Probando conectividad con IPFS...', 'info');
+                
+                if (window.pinataService && window.pinataService.isConfigured) {
+                    await window.pinataService.loadFile(testHash);
+                    showStatus('✅ ¡Conectividad IPFS exitosa! Los archivos se pueden cargar correctamente.', 'success');
+                } else {
+                    showStatus('⚠️ Pinata no está configurado. Solo funcionará el almacenamiento local.', 'info');
+                }
+                
+            } catch (error) {
+                console.error('Error en test de conectividad:', error);
+                showStatus(`❌ Problema de conectividad: ${error.message}`, 'error');
+            } finally {
+                testConnBtn.disabled = false;
+                testConnBtn.innerHTML = '🔍 Probar Conectividad IPFS';
             }
         }
 
@@ -841,6 +894,7 @@ console.log('¡Hola BlockHub!');"
         saveFileBtn.addEventListener('click', handleSaveFile);
         loadFileBtn.addEventListener('click', handleLoadFile);
         newFileBtn.addEventListener('click', handleNewFile);
+        testConnBtn.addEventListener('click', testIPFSConnectivity);
 
         // Habilitar guardado cuando hay contenido
         codeEditor.addEventListener('input', () => {
